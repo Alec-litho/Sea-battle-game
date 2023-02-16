@@ -1,14 +1,43 @@
 import Logic from './mainLogic.js';
-
 let game = new Logic()
-
 window.game  = game
 
-document.querySelectorAll('.cell').forEach(cell=> {
+let cells = document.querySelectorAll('.cell')
+
+let ship = game.shipList['one']
+
+cells.forEach(cell=> {
     cell.addEventListener('click', e => {
-        console.log(e.target.dataset.cord);
-        game.currShip.x = +e.target.dataset.cord[1]
-        game.currShip.y = +e.target.dataset.cord[0]
-        game.click()
+        game.click(+e.target.dataset.cord[0], +e.target.dataset.cord[1], ship)//+e.target.dataset.cord[0]+1, +e.target.dataset.cord[1]+1, ship
     })
 })
+
+
+document.querySelectorAll('.shipToPut').forEach(item => {
+    item.addEventListener('click', e => {
+        ship = game.shipList[e.target.dataset.num]
+
+    })
+})
+
+
+
+
+
+
+
+setInterval(()=> {
+    cells.forEach(cell => {
+        for (let y = 0; y < game.myField.length ; y++) {
+            for (let x = 0; x < game.myField[y].length ; x++) {
+                if(game.myField[y][x] === 2) {
+
+                    if(cell.dataset.cord === [y,x].join('')) {//if(cell.dataset.cord === [y-1,x-1].join('')) {
+                        cell.classList.add('ship')
+                    }
+                }
+            }      
+        }
+    })
+},2000)
+

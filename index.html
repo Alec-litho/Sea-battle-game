@@ -8,10 +8,16 @@
     <title>Document</title>
 </head>
 <body>
+    <div class="ships">
+        <div class="curr">1</div>
+        <div class="shipToPut"data-num="one" id="one"></div>
+        <div class="shipToPut"data-num="two" id="two"></div>
+        <div class="shipToPut"data-num="three" id="three"></div>
+    </div>
     <div class="board">
         <div class="cell" data-cord="00"></div>
         <div class="cell" data-cord="01"></div>
-        <div class="cell" data-cord="01"></div>
+        <div class="cell" data-cord="02"></div>
         <div class="cell" data-cord="03"></div>
         <div class="cell" data-cord="04"></div>
         <div class="cell" data-cord="05"></div>
@@ -19,98 +25,99 @@
         <div class="cell" data-cord="07"></div>
         <div class="cell" data-cord="08"></div>
         <div class="cell" data-cord="09"></div>
-        <div class="cell" data-cord="010"></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
-        <div class="cell" data-cord=""></div>
+        <div class="cell" data-cord="10"></div>
+        <div class="cell" data-cord="11"></div>
+        <div class="cell" data-cord="12"></div>
+        <div class="cell" data-cord="13"></div>
+        <div class="cell" data-cord="14"></div>
+        <div class="cell" data-cord="15"></div>
+        <div class="cell" data-cord="16"></div>
+        <div class="cell" data-cord="17"></div>
+        <div class="cell" data-cord="18"></div>
+        <div class="cell" data-cord="19"></div>
+        <div class="cell" data-cord="20"></div>
+        <div class="cell" data-cord="21"></div>
+        <div class="cell" data-cord="22"></div>
+        <div class="cell" data-cord="23"></div>
+        <div class="cell" data-cord="24"></div>
+        <div class="cell" data-cord="25"></div>
+        <div class="cell" data-cord="26"></div>
+        <div class="cell" data-cord="27"></div>
+        <div class="cell" data-cord="28"></div>
+        <div class="cell" data-cord="29"></div>
+        <div class="cell" data-cord="30"></div>
+        <div class="cell" data-cord="31"></div>
+        <div class="cell" data-cord="32"></div>
+        <div class="cell" data-cord="33"></div>
+        <div class="cell" data-cord="34"></div>
+        <div class="cell" data-cord="35"></div>
+        <div class="cell" data-cord="36"></div>
+        <div class="cell" data-cord="37"></div>
+        <div class="cell" data-cord="38"></div>
+        <div class="cell" data-cord="39"></div>
+        <div class="cell" data-cord="40"></div>
+        <div class="cell" data-cord="41"></div>
+        <div class="cell" data-cord="42"></div>
+        <div class="cell" data-cord="43"></div>
+        <div class="cell" data-cord="44"></div>
+        <div class="cell" data-cord="45"></div>
+        <div class="cell" data-cord="46"></div>
+        <div class="cell" data-cord="47"></div>
+        <div class="cell" data-cord="48"></div>
+        <div class="cell" data-cord="49"></div>
+        <div class="cell" data-cord="50"></div>
+        <div class="cell" data-cord="51"></div>
+        <div class="cell" data-cord="52"></div>
+        <div class="cell" data-cord="53"></div>
+        <div class="cell" data-cord="54"></div>
+        <div class="cell" data-cord="55"></div>
+        <div class="cell" data-cord="56"></div>
+        <div class="cell" data-cord="57"></div>
+        <div class="cell" data-cord="58"></div>
+        <div class="cell" data-cord="59"></div>
+        <div class="cell" data-cord="60"></div>
+        <div class="cell" data-cord="61"></div>
+        <div class="cell" data-cord="62"></div>
+        <div class="cell" data-cord="63"></div>
+        <div class="cell" data-cord="64"></div>
+        <div class="cell" data-cord="65"></div>
+        <div class="cell" data-cord="66"></div>
+        <div class="cell" data-cord="67"></div>
+        <div class="cell" data-cord="68"></div>
+        <div class="cell" data-cord="69"></div>
+        <div class="cell" data-cord="70"></div>
+        <div class="cell" data-cord="71"></div>
+        <div class="cell" data-cord="72"></div>
+        <div class="cell" data-cord="73"></div>
+        <div class="cell" data-cord="74"></div>
+        <div class="cell" data-cord="75"></div>
+        <div class="cell" data-cord="76"></div>
+        <div class="cell" data-cord="77"></div>
+        <div class="cell" data-cord="78"></div>
+        <div class="cell" data-cord="79"></div>
+        <div class="cell" data-cord="80"></div>
+        <div class="cell" data-cord="81"></div>
+        <div class="cell" data-cord="82"></div>
+        <div class="cell" data-cord="83"></div>
+        <div class="cell" data-cord="84"></div>
+        <div class="cell" data-cord="85"></div>
+        <div class="cell" data-cord="86"></div>
+        <div class="cell" data-cord="87"></div>
+        <div class="cell" data-cord="88"></div>
+        <div class="cell" data-cord="89"></div>
+        <div class="cell" data-cord="90"></div>
+        <div class="cell" data-cord="91"></div>
+        <div class="cell" data-cord="92"></div>
+        <div class="cell" data-cord="93"></div>
+        <div class="cell" data-cord="94"></div>
+        <div class="cell" data-cord="95"></div>
+        <div class="cell" data-cord="96"></div>
+        <div class="cell" data-cord="97"></div>
+        <div class="cell" data-cord="98"></div>
+        <div class="cell" data-cord="99"></div>
     </div>
     <script src="./mainLogic.js" type="module"></script>
     <script src="./game.js" type="module"></script>
+    <script src="./ship.js" type="module"></script>
 </body>
 </html>

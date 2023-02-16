@@ -2,6 +2,8 @@ body {
     width: 100vw;
     height: 100vh;
     display: flex;
+    flex-direction: column;
+    gap: 20px;
     justify-content: center;
     align-items: center;
 }
@@ -10,7 +12,38 @@ body {
     grid-template-columns: repeat(10, auto);
 }
 .cell {
-    width: 20px;
-    height: 20px;
-    border: 1px solid black;
+    width: 25px;
+    height: 25px;
+    border: .1px solid rgb(66, 80, 141);
+    background-color: rgb(203, 213, 221);
+}
+
+.cell.ship {
+    background-color: rgb(47, 59, 97);
+    border: .1px solid rgb(47, 59, 97);;
+}
+
+.shipToPut {
+    width: 25px;
+    height: 25px;
+    background-color: rgb(47, 59, 97);
+}
+
+#two {
+   width: 50px;
+
+}
+#three {
+    width: 75px;
+}
+.ships {
+    position: relative;
+    display: flex;
+    gap: 20px;
+}
+.curr {
+
+    position: absolute;
+    top: -40px;
+    left: -45px;
 }
