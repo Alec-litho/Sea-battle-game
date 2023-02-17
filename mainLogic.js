@@ -1,11 +1,23 @@
 class Ship {
     constructor(y,x,kind) {
-        this.y = y
-        this.x = x
+        this.y = +y
+        this.x = +x
         this.kind = kind
-        this.id = Math.floor(Math.random() * 100000)
-    }
 
+        this.start = y+x
+        kind[0].length == 1? this.end = +this.start : this.end = +this.start + kind[0].length-1
+        this.id = Math.floor(Math.random() * 100000)
+        this.length = (_ => {
+            let lengthNum = this.end - this.start + 1
+            let lengthCords = []
+            let a = this.start
+            while(a <= this.end) {lengthCords.push(a++)}
+            return {
+                num: lengthNum,
+                cords: lengthCords
+            }
+        })()
+    }
 }
 
 export default class logic {
@@ -38,14 +50,16 @@ export default class logic {
     ]
     shipList = {
         four: [
-            [1,1,1,1,1,1],
-            [1,2,2,2,2,1],
-            [1,1,1,1,1,1],
+            [2,2,2,2],
+            // [1,1,1,1,1,1],
+            // [1,2,2,2,2,1],
+            // [1,1,1,1,1,1],
         ],
         three: [
-            [1,1,1,1,1],
-            [1,2,2,2,1],
-            [1,1,1,1,1],
+            [2,2,2],
+            // [1,1,1,1,1],
+            // [1,2,2,2,1],
+            // [1,1,1,1,1],
         ],
         two: [
             [2,2],
@@ -55,7 +69,6 @@ export default class logic {
         ],
     }
     init = (() => this.createShip(0,0,this.shipList.one))()//creating first ship
-
     currentShipFunc() {
         let obj = {}
         obj.x = this.existingShips[this.existingShips.length-1].x
@@ -64,10 +77,17 @@ export default class logic {
         return obj
     }
     click(y,x,kind) {
-        this.createShip(y,x,kind)
+        if(!this.checkExistingShips(+x,+y)) {
+            console.log('exists');
+            return
+        } else {
+            this.createShip(y,x,kind)
+        }
+
 
         if(this.checkForBarriers()) {
             console.log('cant place it here');
+            this.existingShips.pop()
         } else {
             this.placeShip()
         }
@@ -76,6 +96,7 @@ export default class logic {
     placeShip() {
         let gapX, gapY
         let {x:Xcord, y:Ycord, ship} = this.currentShipFunc()
+
         // Xcord === 0? gapX = 0 : gapX = 1
         // Ycord === 0? gapY = 0 : Ycord = 1
         for (let y = 0; y < ship.length;  y++) {
@@ -83,6 +104,9 @@ export default class logic {
                     this.myField[Ycord  + y][Xcord  + x] = ship[y][x]
             }
         }
+    }
+    checkExistingShips(x,y) {
+        return [...this.existingShips].some(ship => ship.x !== x && ship.y !== y)
     }
     checkForBarriers() {
         let {x:Xcord, y:Ycord, ship} = this.currentShipFunc()
@@ -93,9 +117,11 @@ export default class logic {
             }
         }
     }
+
     createShip(y,x,kind) {
         let ship = new Ship(y,x,kind)
         this.existingShips.push(ship)
+
     }
 }
 

@@ -8,10 +8,19 @@ let ship = game.shipList['one']
 
 cells.forEach(cell=> {
     cell.addEventListener('click', e => {
-        game.click(+e.target.dataset.cord[0], +e.target.dataset.cord[1], ship)//+e.target.dataset.cord[0]+1, +e.target.dataset.cord[1]+1, ship
+        game.click(e.target.dataset.cord[0], e.target.dataset.cord[1], ship)//+e.target.dataset.cord[0]+1, +e.target.dataset.cord[1]+1, ship
     })
 })
-
+// getting ship
+cells.forEach(cell=> {
+    cell.addEventListener('click', e => {
+        for (const ship of game.existingShips) {
+            if([...ship.length.cords].some(cord => cord == e.target.dataset.cord[0] + e.target.dataset.cord[1])) {
+                console.log('this ship exists', ship);
+            } 
+        }
+    })
+})
 
 document.querySelectorAll('.shipToPut').forEach(item => {
     item.addEventListener('click', e => {
@@ -39,5 +48,5 @@ setInterval(()=> {
             }      
         }
     })
-},2000)
+},1000)
 
