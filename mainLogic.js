@@ -7,7 +7,7 @@ class Ship {
         this.start = y+x
         kind[0].length == 1? this.end = +this.start : this.end = +this.start + kind[0].length-1
         this.id = Math.floor(Math.random() * 100000)
-        this.length = (_ => {
+        this.shipCells = (_ => {
             let lengthNum = this.end - this.start + 1
             let lengthCords = []
             let a = this.start
@@ -105,8 +105,19 @@ export default class logic {
             }
         }
     }
+    attackShip(y,x) {
+        if(this.checkForBarriers()) {
+            let lastIndex = this.existingShips.length-1
+            let cords = this.existingShips[lastIndex].shipCells.cords.filter(cord => cord != y + x )
+            this.myField[y][x] = 1
+            this.existingShips[lastIndex].shipCells.cords = cords
+            this.removeShip()
+        } else {
+            console.log(`there's no ship`);
+        }
+    }
     checkExistingShips(x,y) {
-        return [...this.existingShips].some(ship => ship.x !== x && ship.y !== y)
+        return [...this.existingShips].some(ship => ship.x != x && ship.y != y)
     }
     checkForBarriers() {
         let {x:Xcord, y:Ycord, ship} = this.currentShipFunc()
@@ -117,7 +128,10 @@ export default class logic {
             }
         }
     }
-
+    removeShip() {
+        let existingShips = this.existingShips.filter(ship => ship.shipCells.cords.length > 0)
+        this.existingShips = existingShips
+    }
     createShip(y,x,kind) {
         let ship = new Ship(y,x,kind)
         this.existingShips.push(ship)
