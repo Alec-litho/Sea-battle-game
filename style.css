@@ -1,3 +1,8 @@
+:root {
+	--cell-size:  25px;
+	--mark-size:  calc(var(--cell-size) * .9);
+}
+
 body {
     width: 100vw;
     height: 100vh;
@@ -12,9 +17,12 @@ body {
     grid-template-columns: repeat(10, auto);
 }
 .cell {
-    width: 25px;
-    height: 25px;
-    border: .1px solid rgb(66, 80, 141);
+    box-sizing: border-box;
+    position: relative;
+    border-radius: 5px;
+    width: var(--cell-size);
+    height: var(--cell-size);
+    border: .1px solid rgb(255, 255, 255);
     background-color: rgb(203, 213, 221);
 }
 
@@ -24,17 +32,18 @@ body {
 }
 
 .shipToPut {
-    width: 25px;
-    height: 25px;
+    width: var(--cell-size);
+    height: var(--cell-size);
+    border-radius: 5px;
     background-color: rgb(47, 59, 97);
 }
 
 #two {
-   width: 50px;
+   width: calc(var(--cell-size) * 2);
 
 }
 #three {
-    width: 75px;
+    width: calc(var(--cell-size) * 3);
 }
 .ships {
     position: relative;
@@ -46,4 +55,49 @@ body {
     position: absolute;
     top: -40px;
     left: -45px;
+}
+
+#four {
+    width: calc(var(--cell-size) * 4);
+}
+
+.shipToPut.hide {
+    display: none;
+}
+/* ---------X------------*/
+.cell.attackedShip {
+    border: 3px solid rgb(216, 111, 111);
+    background-color: rgb(47, 59, 97);
+}
+.cell.attacked::before,
+.cell.attacked::after,
+.board.attacked .cell:not(.attacked):hover::before,
+.board.attacked .cell:not(.attacked):hover::after {
+	content: '';
+	position: absolute;
+    left: 10px;
+    top: 0px;
+	width: calc(var(--mark-size) * .15);
+	height: var(--mark-size);
+	background-color: rgb(216, 111, 111);
+}
+.cell.attackedShip::before,
+.cell.attackedShip::after {
+    content: '';
+	position: absolute;
+    left: 8px;
+    top: -3px;
+	width: calc(var(--mark-size) * .15);
+	height: calc(var(--mark-size) * 1.2);
+	background-color: rgb(216, 111, 111);
+}
+.cell.attacked::before,
+.cell.attackedShip::before,
+.board.attacked .cell:not(.attacked):hover::before {
+	transform: rotate(45deg);
+}
+.cell.attacked::after,
+.cell.attackedShip::after,
+.board.attacked .cell:not(.attacked):hover::after {
+	transform: rotate(-45deg);
 }
