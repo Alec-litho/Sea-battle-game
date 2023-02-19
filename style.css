@@ -1,22 +1,33 @@
+@import url('reset.css');
 :root {
 	--cell-size:  25px;
 	--mark-size:  calc(var(--cell-size) * .9);
 }
-
-body {
+body {font-family: 'Arial', sans-serif;}
+.game {
     width: 100vw;
     height: 100vh;
-    display: flex;
+    display: none;
     flex-direction: column;
     gap: 20px;
     justify-content: center;
     align-items: center;
 }
-.board {
+.board, .boardPlayerTwo {
     display: grid;
     grid-template-columns: repeat(10, auto);
 }
+.boardPlayerTwo .cell {
+    background-color: rgb(203, 213, 221);
+}
+.boardPlayerTwo .cell.ship {
+    background-color: rgb(203, 213, 221);
+    border: .1px solid rgb(47, 59, 97);;
+}
 .cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     box-sizing: border-box;
     position: relative;
     border-radius: 5px;
@@ -70,13 +81,11 @@ body {
     background-color: rgb(47, 59, 97);
 }
 .cell.attacked::before,
-.cell.attacked::after,
-.board.attacked .cell:not(.attacked):hover::before,
-.board.attacked .cell:not(.attacked):hover::after {
+.cell.attacked::after
+/* .cell:hover::before,
+.cell:hover::after { */{
 	content: '';
 	position: absolute;
-    left: 10px;
-    top: 0px;
 	width: calc(var(--mark-size) * .15);
 	height: var(--mark-size);
 	background-color: rgb(216, 111, 111);
@@ -85,19 +94,43 @@ body {
 .cell.attackedShip::after {
     content: '';
 	position: absolute;
-    left: 8px;
-    top: -3px;
 	width: calc(var(--mark-size) * .15);
 	height: calc(var(--mark-size) * 1.2);
 	background-color: rgb(216, 111, 111);
 }
 .cell.attacked::before,
 .cell.attackedShip::before,
-.board.attacked .cell:not(.attacked):hover::before {
+.cell:hover::before {
 	transform: rotate(45deg);
 }
 .cell.attacked::after,
 .cell.attackedShip::after,
-.board.attacked .cell:not(.attacked):hover::after {
+.cell:hover::after {
 	transform: rotate(-45deg);
+}
+
+/*--------------------------------------------------*/
+
+.startGame {
+    width: 100vw;
+    height: 100vh;
+    background-color: rgb(128, 163, 194);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.newGame {
+    width: 300px;
+    height: 50px;
+    border-radius: 25px;
+    background-color: white;
+    color: rgb(128, 163, 194);
+    font-size: 25px;
+    font-weight: 600;
+    transition: .3s;
+}
+.newGame:hover {
+    background-color: rgb(128, 163, 194);
+    color: white;
 }

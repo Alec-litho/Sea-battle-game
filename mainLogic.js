@@ -21,54 +21,16 @@ class Ship {
 }
 
 export default class logic {
+    init = () => this.createShip(0,0,this.shipList.one)//creating first ship
     existingShips = []
-    myField = [
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0],
-
-
-        // [0,0,0,0,0,0,0,0,0,0,0,0],
-        // [0,0,0,0,0,0,0,0,0,0,0,0],
-        // [0,0,0,0,0,0,0,0,0,0,0,0],
-        // [0,0,0,0,0,0,0,0,0,0,0,0],
-        // [0,0,0,0,0,0,0,0,0,0,0,0],
-        // [0,0,0,0,0,0,0,0,0,0,0,0],
-        // [0,0,0,0,0,0,0,0,0,0,0,0],
-        // [0,0,0,0,0,0,0,0,0,0,0,0],
-        // [0,0,0,0,0,0,0,0,0,0,0,0],
-        // [0,0,0,0,0,0,0,0,0,0,0,0],
-        // [0,0,0,0,0,0,0,0,0,0,0,0],
-        // [0,0,0,0,0,0,0,0,0,0,0,0]
-    ]
+    myField = [[],[]]
     shipList = {
-        four: [
-            [2,2,2,2],
-            // [1,1,1,1,1,1],
-            // [1,2,2,2,2,1],
-            // [1,1,1,1,1,1],
-        ],
-        three: [
-            [2,2,2],
-            // [1,1,1,1,1],
-            // [1,2,2,2,1],
-            // [1,1,1,1,1],
-        ],
-        two: [
-            [2,2],
-        ],
-        one: [
-            [2],
-        ],
+        four: [[2,2,2,2],],
+        three: [[2,2,2],],
+        two: [[2,2],],
+        one: [[2],],
     }
-    init = (() => this.createShip(0,0,this.shipList.one))()//creating first ship
+
     currentShipFunc() {
         let obj = {}
         obj.x = this.existingShips[this.existingShips.length-1].x
@@ -78,7 +40,7 @@ export default class logic {
     }
     click(y,x,kind) {
         if(!this.checkExistingShips(+x,+y)) {
-            console.log('exists');
+            console.log('exists', this.existingShips);
             return
         } else {
             this.createShip(y,x,kind)
@@ -111,13 +73,19 @@ export default class logic {
             let cords = this.existingShips[lastIndex].shipCells.cords.filter(cord => cord != y + x )
             this.myField[y][x] = 1
             this.existingShips[lastIndex].shipCells.cords = cords
+            console.log(this.myField);
             this.removeShip()
         } else {
             console.log(`there's no ship`);
         }
     }
     checkExistingShips(x,y) {
-        return [...this.existingShips].some(ship => ship.x != x && ship.y != y)
+        if(this.existingShips.length > 0) {
+        return [...this.existingShips].some(ship => ship.x !== x && ship.y !== y)
+        } else {
+            console.log('empty');
+            return true
+        }
     }
     checkForBarriers() {
         let {x:Xcord, y:Ycord, ship} = this.currentShipFunc()

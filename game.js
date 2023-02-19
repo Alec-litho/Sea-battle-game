@@ -1,11 +1,83 @@
 import Logic from './mainLogic.js';
-let game = new Logic()
-window.game  = game
+import Player from './players.js';
 
-let cells = document.querySelectorAll('.cell')
-let shipsToPut = document.querySelectorAll('.shipToPut')
-let board = document.querySelector('.board')
-let ship = game.shipList['one']
+document.querySelector('.newGame').addEventListener('click', _ => {
+    document.querySelector('.game').style.display = 'flex'
+    document.querySelector('.startGame').style.display = 'none'
+    const playerOne = new Player()//first player
+    const playerTwo = new Player()//second player
+    const game = new Logic()//loading logic
+    window.playerOne = playerOne
+    window.playerTwo = playerTwo
+    window.game  = game
+    let cellsPlayerOne = document.querySelector('.board').childNodes//first player cells
+    let cellsPlayerTwo = document.querySelector('.boardPlayerTwo').childNodes//second player cells
+    let shipsToPut = document.querySelectorAll('.shipToPut')
+    let board = document.querySelector('.board')
+    let ship = game.shipList['one']
+    let turn = true
+    changeTurn()
+    
+    function changeTurn() {
+        if(turn) {
+            game.existingShips = playerOne.existingShips
+            game.myField = playerOne.field
+            console.log('playerone');
+            logic(cellsPlayerOne, cellsPlayerTwo) 
+        } else {
+            console.log('playertwo');
+            game.existingShips = playerTwo.existingShips
+            game.myField = playerTwo.field
+            logic(cellsPlayerTwo, cellsPlayerOne) 
+        }
+        console.log(turn);
+    }
+    
+    function logic(cells, enemyCells) {
+//put ship--------------------------------------------------
+        cells.forEach(cell=> {
+            cell.addEventListener('click', e => {
+                game.click(e.target.dataset.cord[0], e.target.dataset.cord[1], ship)//+e.target.dataset.cord[0]+1, +e.target.dataset.cord[1]+1, ship
+            })
+        })         
+//fire------------------------------------------------------
+        enemyCells.forEach(cell=> {
+                cell.addEventListener('contextmenu', attack)
+                function attack(e) {
+                    e.preventDefault()
+                    e.target.className === "cell ship"? cell.classList.add('attackedShip') : cell.classList.add('attacked')
+                    cell.classList.remove('ship')
+                    game.attackShip(e.target.dataset.cord[0],  e.target.dataset.cord[1])
+                    cell.removeEventListener('contextmenu', attack)
+                
+                    turn = !turn
+                    changeTurn()
+            }
+        })
+      
+        document.querySelectorAll('.shipToPut').forEach(item => {
+            item.addEventListener('click', e => {
+                ship = game.shipList[e.target.dataset.num]
+            })
+        })
+        
+        setInterval(()=> {
+            [...cells].forEach(cell => {
+                if(cell.nodeType === Node.ELEMENT_NODE) {
+                    for (let y = 0; y < game.myField.length ; y++) {
+                        for (let x = 0; x < game.myField[y].length ; x++) {
+                            if(game.myField[y][x] === 2) {
+            
+                                if(cell.dataset.cord === [y,x].join('')) {//if(cell.dataset.cord === [y-1,x-1].join('')) {
+                                    cell.classList.add('ship')
+                                }
+                            }
+                        }      
+                    }}
+            })
+        },1000)
+    }
+}, {once: true})
 
 
 // cells.forEach( cell => {
@@ -40,49 +112,13 @@ let ship = game.shipList['one']
 // })
 
 
-cells.forEach(cell=> {
-    //put ship--------------------------------------------------
-    cell.addEventListener('click', e => {
-        game.click(e.target.dataset.cord[0], e.target.dataset.cord[1], ship)//+e.target.dataset.cord[0]+1, +e.target.dataset.cord[1]+1, ship
-    })
-    //fire------------------------------------------------------
-    cell.addEventListener('contextmenu', e => {
-        e.preventDefault()
-        e.target.className === "cell ship"? cell.classList.add('attackedShip') : cell.classList.add('attacked')
-        cell.classList.remove('ship')
-        game.attackShip(e.target.dataset.cord[0],  e.target.dataset.cord[1])
-    })
-})
-// getting ship
-cells.forEach(cell=> {
-    cell.addEventListener('click', e => {
-        for (const ship of game.existingShips) {
-            if([...ship.shipCells.cords].some(cord => cord == e.target.dataset.cord[0] + e.target.dataset.cord[1])) {
-                console.log(e.target.dataset.cord[0] + e.target.dataset.cord[1]);
-            } 
-        }
-    })
-})
-
-document.querySelectorAll('.shipToPut').forEach(item => {
-    item.addEventListener('click', e => {
-        ship = game.shipList[e.target.dataset.num]
-
-    })
-})
-
-setInterval(()=> {
-    cells.forEach(cell => {
-        for (let y = 0; y < game.myField.length ; y++) {
-            for (let x = 0; x < game.myField[y].length ; x++) {
-                if(game.myField[y][x] === 2) {
-
-                    if(cell.dataset.cord === [y,x].join('')) {//if(cell.dataset.cord === [y-1,x-1].join('')) {
-                        cell.classList.add('ship')
-                    }
-                }
-            }      
-        }
-    })
-},1000)
-
+    // getting ship
+    // cells.forEach(cell=> {
+    //     cell.addEventListener('click', e => {
+    //         for (const ship of game.existingShips) {
+    //             if([...ship.shipCells.cords].some(cord => cord == e.target.dataset.cord[0] + e.target.dataset.cord[1])) {
+    //                 console.log(e.target.dataset.cord[0] + e.target.dataset.cord[1]);
+    //             } 
+    //         }
+    //     })
+    // })
