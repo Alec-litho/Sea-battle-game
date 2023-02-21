@@ -22,8 +22,10 @@ class Ship {
 
 export default class logic {
     init = () => this.createShip(0,0,this.shipList.one)//creating first ship
-    existingShips = []
+    //------------------it will be change depending on which turn is it right now
+    existingShips = []//thus it's either player one or player two
     myField = [[],[]]
+    //------------------
     shipList = {
         four: [[2,2,2,2],],
         three: [[2,2,2],],
