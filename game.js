@@ -27,15 +27,20 @@ document.querySelector('.newGame').addEventListener('click', _ => {
         if(turn) {
             game.existingShips = playerOne.existingShips
             game.myField = playerOne.field
-            logic(cellsPlayerOne, cellsPlayerTwo) 
+            logic(cellsPlayerOne, cellsPlayerTwo, cellsPlayerTwo[0].parentNode) 
         } else {
             game.existingShips = playerTwo.existingShips
             game.myField = playerTwo.field
-            logic(cellsPlayerTwo, cellsPlayerOne) 
+            logic(cellsPlayerTwo, cellsPlayerOne, cellsPlayerOne[0].parentNode) 
         }
     }
-    
-    function logic(cells, enemyCells) {
+//-------------------------------clear---------------------------------------
+
+//----------------------------------------------------------------------------------
+    function logic(cells, enemyCells, board) {
+        let val = false
+        let currentCells = ''
+        let cellss = []
         function placeShip(e) {
             game.click(e.target.dataset.cord[0], e.target.dataset.cord[1], ship)//+e.target.dataset.cord[0]+1, +e.target.dataset.cord[1]+1, ship
         }
@@ -45,26 +50,59 @@ document.querySelector('.newGame').addEventListener('click', _ => {
         })         
 //fire------------------------------------------------------
         enemyCells.forEach(cell=> {
-                cell.addEventListener('contextmenu', attack)   
-                
-    
-                function attack(e) {
-                    e.preventDefault()
-                    e.target.className === "cell ship"? cell.classList.add('attackedShip') : cell.classList.add('attacked')
-                    cell.classList.remove('ship')
-                    game.attackShip(e.target.dataset.cord[0],  e.target.dataset.cord[1])
-                    // cell.addEventListener('mousemove', (e) => e.target.removeEventListener('contextmenu', attack))
-                    changeTurn 
+            if(cell.nodeType === Node.ELEMENT_NODE) {
+            cellss.push(cell)
+            cell.parameter = cellss
+            cell.addEventListener('contextmenu', attack)   
             }
         })
+//----------------------------------------------------------
+
+
+//ПРОБЛЕМА, ПРИ НАЖАТИИ РАБОТАЕТ ТАК ЧТО ТОТ ЖЕ САМЫЙ ИВЕНТ НЕ РАБОТАЕТ, НО
+//ТАК КАК СРАБАТЫВАЕТ CHANGETURN ТО ПОЛУЧАЕТСЯ БАГ
+        function attack(e) {
+                e.preventDefault()
+                e.target.className === "cell ship"?  attacked(e.target) : missed(e.target)
+                e.target.classList.remove('ship')
+                game.attackShip(e.target.dataset.cord[0],  e.target.dataset.cord[1])
+                // val? null : change()    
+            }
+           
+        
+        board.addEventListener('contextmenu', change)
+
+        function change() {
+            clear()
+            stop()
+            changeTurn()
+        }
+        function clear() {
+            cellsPlayerOne.forEach(enemyCell => {
+                enemyCell.removeEventListener('contextmenu', attack)
+                
+            })
+            cellsPlayerTwo.forEach(enemyCell => {
+                enemyCell.removeEventListener('contextmenu', attack)
+
+            })
+        } 
+        function missed(cell) {
+            cell.classList.add('attacked')
+            val = false
+        }
+        function attacked(cell) {
+            cell.classList.add('attackedShip')
+            val = true
+        }
       
         document.querySelectorAll('.shipToPut').forEach(item => {
             item.addEventListener('click', e => {
                 ship = game.shipList[e.target.dataset.num]
             })
         })
-        
-        setInterval(()=> {
+
+        function update(cells) {
             [...cells].forEach(cell => {
                 if(cell.nodeType === Node.ELEMENT_NODE) {
                     for (let y = 0; y < game.myField.length ; y++) {
@@ -78,9 +116,10 @@ document.querySelector('.newGame').addEventListener('click', _ => {
                         }      
                     }}
             })
-        },1000)
-    }
-})
+        }
+        function stop() {clearInterval(interval)}
+        let interval = setInterval(_ => update(cells), 1000)
+}})
 
 
 // cells.forEach( cell => {
