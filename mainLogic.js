@@ -41,8 +41,8 @@ export default class logic {
         return obj
     }
     click(y,x,kind) {
-        if(!this.checkExistingShips(+x,+y)) {
-            console.log('exists', this.existingShips);
+        if(!this.checkExistingShips(+x,+y) || kind == undefined) {
+            console.log(`exists - ${x,y}`, this.existingShips);
             return
         } else {
             this.createShip(y,x,kind)
@@ -91,7 +91,6 @@ export default class logic {
     }
     checkForBarriers() {
         let {x:Xcord, y:Ycord, ship} = this.currentShipFunc()
-        console.log(this.myField);
         for (let y = 0; y < ship.length; y++) {
             for (let x = 0; x < ship[y].length; x++) {
                 if(this.myField[Ycord + y][Xcord + x] === undefined || this.myField[Ycord + y][Xcord + x] === 2) return true

@@ -15,28 +15,29 @@ document.querySelector('.newGame').addEventListener('click', _ => {
     let turn = true
     let prepare = true //if false, the preparing stage is finished
     changeTurn(cellsPlayerOne, cellsPlayerTwo, cellsPlayerOne[0].parentNode, cellsPlayerTwo[0].parentNode)
-    
+
     function changeTurn(playerOne, playerTwo, boardPlayerOne, boardPlayerTwo) {
+        console.log(turn);
         if(turn) {
             game.existingShips = newPlayerOne.existingShips
             game.myField = newPlayerTwo.field
             logic(playerOne, playerTwo, boardPlayerOne, boardPlayerTwo)
         } else {
-            game.existingShips = playerTwo.existingShips
-            game.myField = playerTwo.field
+            game.existingShips = newPlayerTwo.existingShips
+            game.myField = newPlayerTwo.field
             logic(playerTwo, playerOne, boardPlayerTwo, boardPlayerOne) 
             prepare = undefined
         }
     }
-    // window.newPlayerOne = newPlayerOne
-    // window.newPlayerTwo = newPlayerTwo
-    // window.cellsPlayerOne = cellsPlayerOne
-    // window.cellsPlayerTwo = cellsPlayerTwo
+    window.newPlayerOne = newPlayerOne
+    window.newPlayerTwo = newPlayerTwo
+    window.cellsPlayerOne = cellsPlayerOne
+    window.cellsPlayerTwo = cellsPlayerTwo
 
 //------------------------------Start game function--------------------------------
 
     function logic(myCells, enemyCells, myBoard, enemyBoard) {
-        prepare? doStrictAmountOfShips(myCells, myBoard) : null
+        prepare? doStrictAmountOfShips(myCells, myBoard, enemyCells) : null
             let ship = game.shipList['one']
             let val = false
             let currentCells = ''
@@ -64,6 +65,23 @@ document.querySelector('.newGame').addEventListener('click', _ => {
                 stop()
                 changeTurn()
             }
+            function clearMe(myCells) {
+                myCells.forEach(myCell => {
+                    myCell.removeEventListener('contextmenu', attack)
+                })
+                myCells.forEach(myCell => {
+                    myCell.removeEventListener('click', placeShip)
+                })
+            }
+            function clearEnemy(cellsEnemy) {
+                cellsEnemy.forEach(cellEnemy => {
+                    cellEnemy.removeEventListener('contextmenu', attack)
+                })
+                cellsEnemy.forEach(cellEnemy => {
+                    cellEnemy.removeEventListener('click', placeShip)
+                })
+            }
+
             function clear(cells, enemyCells) {
                 enemyCells.forEach(enemyCell => {
                     enemyCell.removeEventListener('contextmenu', attack)
@@ -89,6 +107,7 @@ document.querySelector('.newGame').addEventListener('click', _ => {
     //update view-------------------------------------------------
     
             function update(cells) {
+                console.log('1');
                 [...cells].forEach(cell => {
                         for (let y = 0; y < game.myField.length ; y++) {
                             for (let x = 0; x < game.myField[y].length ; x++) {
@@ -102,8 +121,10 @@ document.querySelector('.newGame').addEventListener('click', _ => {
                         }
                 })
             }
-            function stop() {clearInterval(interval)}
-            let interval = setInterval(_ => update(myCells), 1000)
+            function stop() {
+                clearInterval(interval)
+            }
+            let interval = setInterval(_ => update(myCells), 100)
     //------------------------------------------------------------ 
     
     //Ships to put------------------------------------------------
@@ -113,14 +134,14 @@ document.querySelector('.newGame').addEventListener('click', _ => {
                 })
             })
 
-            function doStrictAmountOfShips(cells, board) {
+            function doStrictAmountOfShips(cells, board, cellsEnemy) {
                 let firstKind = 0,
                 secondKind = 0,
                 thirdKind = 0,
                 fourthKind = 0
                 //no need for attack on this stage
-                enemyCells.forEach(enemyCell => {
-                    enemyCell.removeEventListener('contextmenu', attack)
+                cellsEnemy.forEach(enemyCell => {
+                    enemyCell.removeEventListener('contextmenu', attack)//it doesnt work NEED TO BE FIXED!!
                 })
                 //--------------------------------
                 cells.forEach( cell => {
@@ -141,17 +162,25 @@ document.querySelector('.newGame').addEventListener('click', _ => {
                                 fourthKind++
                                 break
                         }
-                        if(game.existingShips.length >= 10) {
-                            turn = !turn 
-                            changeTurn()
+                        if (game.existingShips.length+1 >= 10){
+                            setTimeout(() => {
+                                stop()
+                                clearInterval(loadShipInterval)
+                                clearMe(cells)
+                                clearEnemy(enemyCells)
+                                turn = !turn 
+                                changeTurn(cellsPlayerOne, cellsPlayerTwo, cellsPlayerOne[0].parentNode, cellsPlayerTwo[0].parentNode)
+                            },500)
                         }
                 }
-                board.addEventListener('mousemove', ()=> {
-                    if(firstKind === 4) {document.querySelector('#one').classList.add('hide')}
-                    if(secondKind === 3) document.querySelector('#two').classList.add('hide')
-                    if(thirdKind === 2) document.querySelector('#three').classList.add('hide')
-                    if(fourthKind === 1) document.querySelector('#four').classList.add('hide')
-                })
+                
+                function loadShip() {
+                    if(firstKind === 4) {document.querySelector('#one').classList.add('hide'); ship = game.shipList['two']}
+                    if(secondKind === 3) {document.querySelector('#two').classList.add('hide'); ship = game.shipList['three']}
+                    if(thirdKind === 2) {document.querySelector('#three').classList.add('hide'); ship = game.shipList['four']}
+                    if(fourthKind === 1) {document.querySelector('#four').classList.add('hide');}//need to be fixed
+                }
+                let loadShipInterval = setInterval(_ => loadShip(), 100)
             }
                   
         }
