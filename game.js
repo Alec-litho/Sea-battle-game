@@ -1,6 +1,15 @@
 import Logic from './mainLogic.js';
 import Player from './players.js';
 
+//----------------------------------------------------------------------------------------------------------------
+
+
+
+//THE PROBLEM IS THAT AFTER PLAYER TWO FINISHES PREPARING STAGE ITS STILL HIS TURN ALTHOUGH IT SHOULD BE OVERWISE
+
+
+
+//----------------------------------------------------------------------------------------------------------------
 document.querySelector('.newGame').addEventListener('click', _ => {
     document.querySelector('.game').style.display = 'flex'
     document.querySelector('.startGame').style.display = 'none'
@@ -20,7 +29,7 @@ document.querySelector('.newGame').addEventListener('click', _ => {
         console.log(turn);
         if(turn) {
             game.existingShips = newPlayerOne.existingShips
-            game.myField = newPlayerTwo.field
+            game.myField = newPlayerOne.field
             logic(playerOne, playerTwo, boardPlayerOne, boardPlayerTwo)
         } else {
             game.existingShips = newPlayerTwo.existingShips
@@ -37,17 +46,11 @@ document.querySelector('.newGame').addEventListener('click', _ => {
 //------------------------------Start game function--------------------------------
 
     function logic(myCells, enemyCells, myBoard, enemyBoard) {
-        prepare? doStrictAmountOfShips(myCells, myBoard, enemyCells) : null
+        prepare !== undefined? prepareStage(myCells, myBoard, enemyCells) : null
             let ship = game.shipList['one']
             let val = false
             let currentCells = ''
-    //put ship--------------------------------------------------
-            myCells.forEach(cell => {
-                cell.addEventListener('click', placeShip)
-            })         
-            function placeShip(e) {
-                game.click(e.target.dataset.cord[0], e.target.dataset.cord[1], ship)//+e.target.dataset.cord[0]+1, +e.target.dataset.cord[1]+1, ship
-            }
+
     //fire------------------------------------------------------
             enemyCells.forEach(cell => {
                 cell.addEventListener('contextmenu', attack)   
@@ -61,35 +64,16 @@ document.querySelector('.newGame').addEventListener('click', _ => {
             }
     //Clear and change turn functions----------------------------       
             function change() {
-                clear(myCells, enemyCells)
+                clearCurrentAttack(enemyCells)
                 stop()
                 changeTurn()
             }
-            function clearMe(myCells) {
-                myCells.forEach(myCell => {
-                    myCell.removeEventListener('contextmenu', attack)
-                })
-                myCells.forEach(myCell => {
-                    myCell.removeEventListener('click', placeShip)
-                })
-            }
-            function clearEnemy(cellsEnemy) {
-                cellsEnemy.forEach(cellEnemy => {
-                    cellEnemy.removeEventListener('contextmenu', attack)
-                })
-                cellsEnemy.forEach(cellEnemy => {
-                    cellEnemy.removeEventListener('click', placeShip)
-                })
-            }
-
-            function clear(cells, enemyCells) {
+            function clearCurrentAttack(enemyCells) {
                 enemyCells.forEach(enemyCell => {
                     enemyCell.removeEventListener('contextmenu', attack)
                 })
-                cells.forEach(myCell => {
-                    myCell.removeEventListener('click', placeShip)
-                })
-            } 
+            }
+
     //------------------------------------------------------------ 
     
     //status functions--------------------------------------------
@@ -105,14 +89,11 @@ document.querySelector('.newGame').addEventListener('click', _ => {
     //------------------------------------------------------------ 
     
     //update view-------------------------------------------------
-    
             function update(cells) {
-                console.log('1');
                 [...cells].forEach(cell => {
                         for (let y = 0; y < game.myField.length ; y++) {
                             for (let x = 0; x < game.myField[y].length ; x++) {
                                 if(game.myField[y][x] === 2) {
-                
                                     if(cell.dataset.cord === [y,x].join('')) {//if(cell.dataset.cord === [y-1,x-1].join('')) {
                                         cell.classList.add('ship')
                                     }
@@ -120,10 +101,12 @@ document.querySelector('.newGame').addEventListener('click', _ => {
                             }      
                         }
                 })
+                // console.log(cells[0].parentNode); BUG!!!--------------------------------------------------
             }
             function stop() {
                 clearInterval(interval)
             }
+            
             let interval = setInterval(_ => update(myCells), 100)
     //------------------------------------------------------------ 
     
@@ -134,16 +117,43 @@ document.querySelector('.newGame').addEventListener('click', _ => {
                 })
             })
 
-            function doStrictAmountOfShips(cells, board, cellsEnemy) {
+            function prepareStage(cells, board, cellsEnemy) {
+
+                function clear(cellsMine, cellsEnemy) {
+                    if(turn === true) {// clears player one
+                        cellsMine.forEach(myCell => {
+                            myCell.removeEventListener('contextmenu', attack)
+                        })
+                        cellsMine.forEach(myCell => {
+                            myCell.removeEventListener('click', placeShip)
+                        })
+                    } else if(turn === false) {// clears player two
+                        console.log('playeertwo');
+                        cellsEnemy.forEach(cellEnemy => {
+                            cellEnemy.removeEventListener('contextmenu', attack)
+                        })
+                        cellsEnemy.forEach(cellEnemy => {
+                            cellEnemy.removeEventListener('click', placeShip)
+                        })
+                    } 
+                }
+                    //put ship--------------------------------------------------
+            myCells.forEach(cell => {
+                cell.addEventListener('click', placeShip)
+            })         
+            function placeShip(e) {
+                game.click(e.target.dataset.cord[0], e.target.dataset.cord[1], ship)//+e.target.dataset.cord[0]+1, +e.target.dataset.cord[1]+1, ship
+            }
                 let firstKind = 0,
                 secondKind = 0,
                 thirdKind = 0,
                 fourthKind = 0
-                //no need for attack on this stage
-                cellsEnemy.forEach(enemyCell => {
-                    enemyCell.removeEventListener('contextmenu', attack)//it doesnt work NEED TO BE FIXED!!
-                })
-                //--------------------------------
+                //no need for attack on this stage--------------------------
+                setTimeout(_ => {cellsEnemy.forEach(enemyCell => {
+                    enemyCell.removeEventListener('contextmenu', attack)
+                    })
+                }, 0)
+                //----------------------------------------------------------
                 cells.forEach( cell => {
                     cell.addEventListener('click', smthWithShips)
                 })
@@ -162,16 +172,15 @@ document.querySelector('.newGame').addEventListener('click', _ => {
                                 fourthKind++
                                 break
                         }
-                        if (game.existingShips.length+1 >= 10){
-                            setTimeout(() => {
-                                stop()
-                                clearInterval(loadShipInterval)
-                                clearMe(cells)
-                                clearEnemy(enemyCells)
-                                turn = !turn 
-                                changeTurn(cellsPlayerOne, cellsPlayerTwo, cellsPlayerOne[0].parentNode, cellsPlayerTwo[0].parentNode)
-                            },500)
-                        }
+                        // if (game.existingShips.length+1 === 3){
+                        //     setTimeout(() => {
+                        //         stop()
+                        //         clearInterval(loadShipInterval)
+                        //         clear(cells, cellsEnemy)
+                        //         turn = !turn 
+                        //         changeTurn(myCells, enemyCells, myBoard, enemyBoard)
+                        //     },500)
+                        // }------------------------NEEED TO BE FIXED
                 }
                 
                 function loadShip() {
