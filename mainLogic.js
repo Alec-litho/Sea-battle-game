@@ -41,13 +41,12 @@ export default class logic {
         return obj
     }
     click(y,x,kind) {
-        if(!this.checkExistingShips(+x,+y) || kind == undefined) {
+        if(this.checkExistingShips(+x,+y) || kind == undefined) {
             console.log(`exists - ${x,y}`, this.existingShips);
             return
         } else {
             this.createShip(y,x,kind)
         }
-
 
         if(this.checkForBarriers()) {
             console.log('cant place it here');
@@ -60,7 +59,6 @@ export default class logic {
     placeShip() {
         let gapX, gapY
         let {x:Xcord, y:Ycord, ship} = this.currentShipFunc()
-
         // Xcord === 0? gapX = 0 : gapX = 1
         // Ycord === 0? gapY = 0 : Ycord = 1
         for (let y = 0; y < ship.length;  y++) {
@@ -71,22 +69,24 @@ export default class logic {
     }
     attackShip(y,x) {
         if(this.checkForBarriers()) {
+            console.log('attacked');
             let lastIndex = this.existingShips.length-1
             let cords = this.existingShips[lastIndex].shipCells.cords.filter(cord => cord != y + x )
             this.myField[y][x] = 1
             this.existingShips[lastIndex].shipCells.cords = cords
-            console.log(this.myField);
             this.removeShip()
         } else {
             console.log(`there's no ship`);
         }
     }
-    checkExistingShips(x,y) {
+    // (ship => ship.x !== xcord && ship.y !== ycord)
+    checkExistingShips(xcord,ycord) {
         if(this.existingShips.length > 0) {
-        return [...this.existingShips].some(ship => ship.x !== x && ship.y !== y)
+        return [...this.existingShips].some(ship => {
+            ship.shipCells.cords.forEach(cord => cord == `${ycord}${xcord}` ? true : false)
+        })
         } else {
-            console.log('empty');
-            return true
+            return false
         }
     }
     checkForBarriers() {
