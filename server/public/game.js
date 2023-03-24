@@ -1,11 +1,57 @@
 import Logic from './mainLogic.js';
 import Player from './players.js';
 
+
+
 document.querySelector('.newGame').addEventListener('click', _ => {
+    let room = document.querySelector('.createRoomVal').value
+    if(room !== '' ) {
+        const socket = io("http://localhost:3000")
+        socket.emit("createRoom", {room})
+        socket.on("getResp", roomId => {
+            console.log(roomId);
+            socket.on("response", connected => {
+                startGame(socket, room)
+            })
+        })
+        
+    }
+})
+document.querySelector('.join_room').addEventListener('click', _ => {
+    let room = document.querySelector('.find_room').value
+    if(room !== '' ) {
+        const socket = io("http://localhost:3000")
+        socket.emit("checkIfExists", {room})
+        socket.on("getResp", roomId => console.log(roomId))
+        socket.on('response', data => startGame(socket, room))
+        socket.on('error', err => {
+            document.querySelector('.find_room').style.border = '1px solid red'
+        })
+    }
+})
+
+
+function startGame(socket, room) {
+    let msg = 'none'
+    let btn = document.querySelector('.btn').addEventListener('click', _ => {
+        
+    socket.emit('message', {msg, room})
+    socket.on('receiveMsg', data => {
+        console.log(msg);
+        console.log(data);
+    })
+    })
+    
+    console.log(socket, room);
+
+
     document.querySelector('.game').style.display = 'flex'
+    document.querySelector('.ships').style.display = 'grid'
     document.querySelector('.startGame').style.display = 'none'
     const newPlayerOne = new Player()//first player
-    const newPlayerTwo = new Player()//second player
+    
+    // const newPlayerTwo = new Player()//second player
+
     const game = new Logic()//loading logic
     window.game  = game
     let cellsPlayerOne = [...document.querySelector('.board').childNodes].filter(cell => cell.nodeType === Node.ELEMENT_NODE)//first player cells (array, not nodelist)
@@ -14,10 +60,11 @@ document.querySelector('.newGame').addEventListener('click', _ => {
     let board = document.querySelector('.board')
     let turn = true
     let prepare = true //if false, the preparing stage is finished
+    
     changeTurn(cellsPlayerOne, cellsPlayerTwo, cellsPlayerOne[0].parentNode, cellsPlayerTwo[0].parentNode)
 
     function changeTurn(playerOne, playerTwo, boardPlayerOne, boardPlayerTwo) {
-        console.log(turn? 'playerOne' : 'playerTwo');
+
         if(turn) {
             game.existingShips = newPlayerOne.existingShips
             game.myField = newPlayerOne.field
@@ -30,9 +77,8 @@ document.querySelector('.newGame').addEventListener('click', _ => {
         }
     }
     window.newPlayerOne = newPlayerOne
-    window.newPlayerTwo = newPlayerTwo
     window.cellsPlayerOne = cellsPlayerOne
-    window.cellsPlayerTwo = cellsPlayerTwo
+
 
 //------------------------------Start game function--------------------------------
     function logic(myCells, enemyCells, myBoard, enemyBoard) {
@@ -48,9 +94,11 @@ document.querySelector('.newGame').addEventListener('click', _ => {
             })
             function attack(e) {
                 e.preventDefault()
-                e.target.className === "cell ship"?  attacked(e.target) : missed(e.target)
-                e.target.classList.remove('ship')
-                game.attackShip(e.target.dataset.cord[0],  e.target.dataset.cord[1])
+                let cell = e.target
+                socket.emit("checkForShip", {cell})
+                cell.className === "cell ship"?  attacked(cell) : missed(cell)
+                cell.classList.remove('ship')
+                game.attackShip(cell.dataset.cord[0],  cell.dataset.cord[1])
                 val? null : change()    
             }
     //Clear and change turn functions----------------------------       
@@ -164,13 +212,7 @@ document.querySelector('.newGame').addEventListener('click', _ => {
                 }
             })
         }
-
-})
-
-
-
-
-
+}
 
 
  

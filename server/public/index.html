@@ -9,11 +9,20 @@
 </head>
 <body>
     <div class="startGame">
-        <button class="newGame">Start Game</button>
+        <div class="createRoom">
+            <input class="createRoomVal" placeholder="create room" type="text">
+            <button class="newGame">Create Game</button>
+        </div>
+        <div class="joinRoom">
+            <input class="find_room" placeholder="join room" type="text">
+            <button class="join_room">Join room</button>
+        </div>
     </div>
    
     <div class="gameContainer">
         <div class="ships">
+            <input type="text" class="inp">
+            <button class="btn"></button>
             <div class="curr">1</div>
             <div class="shipToPut"data-num="one" id="one"></div>
             <div class="shipToPut"data-num="two" id="two"></div>
@@ -228,7 +237,7 @@
         </div>
     </div>
     
-   
+    <script  src="/socket.io/socket.io.js"></script>
     <script src="./mainLogic.js" type="module"></script>
     <script src="./game.js" type="module"></script>
     <script src="./players.js" type="module"></script>
