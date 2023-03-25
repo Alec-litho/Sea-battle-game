@@ -18,6 +18,7 @@ const io = new Server(server, {
         methods: ["GET", "POST"]
     }
 })
+let playersFinished = []
 let rooms = []
 io.on("connection", (socket) => {
     
@@ -40,6 +41,13 @@ io.on("connection", (socket) => {
             let notFound = false
             socket.emit('error', {notFound})
         }
+    })
+    socket.on("finishedPreparing", data => {
+        playersFinished.push('finished')
+        let {room} = data
+        console.log(room);
+        playersFinished.length === 2? io.in(room).emit('playerFinishedPreparing', {}) : null
+        
     })
     socket.on("message", data => {
         let {msg, room} = data
