@@ -20,12 +20,21 @@ const io = new Server(server, {
 })
 let playersFinished = []
 let rooms = []
+let sockets = [{turn: true, id: ''}, {turn: false, id: ''}]
+let i = -1
+let socketsRoom = null
 io.on("connection", (socket) => {
     
+    socket.on("setId", _ => {
+        i++
+
+        sockets[i].id = socket.id;
+        console.log(sockets);
+    })
     socket.on("createRoom", data => {
         let {room} = data
-        let id = socket.id
-        socket.emit("getResp", {id})
+        socketsRoom = room
+        socket.emit("getResp", {id: socket.id})
         socket.join(room)
     })
     socket.on('checkIfExists', data => {
@@ -51,9 +60,22 @@ io.on("connection", (socket) => {
     })
     socket.on("message", data => {
         let {msg, room} = data
-        console.log(msg);
         console.log(io.sockets.adapter.rooms.get(`${room}`));
         socket.to(room).emit('receiveMsg', {msg})
+    })
+    socket.on("changeTurn", data => {
+        let {socketId, beginning} = data;
+        console.log(sockets[0].turn, sockets[1].turn);
+
+        if(beginning) socketId.id === sockets[0].id? io.to(sockets[0].id).emit("turn", {turn: sockets[0].turn}) : io.to(sockets[1].id).emit("turn", {turn: sockets[1].turn})
+        else {
+            sockets[0].turn === true? sockets[0].turn = false : sockets[0].turn = true
+            sockets[1].turn === true? sockets[1].turn = false : sockets[1].turn = true
+            io.to(sockets[0].id).emit("turn", {turn: sockets[0].turn})
+            io.to(sockets[1].id).emit("turn", {turn: sockets[1].turn})
+            console.log(sockets);
+        }
+
     })
 })
 
