@@ -19,33 +19,30 @@ const io = new Server(server, {
     }
 })
 let playersFinished = []
-let rooms = []
+let currentRoom = ''
 let sockets = [{turn: true, id: ''}, {turn: false, id: ''}]
-let i = -1
 let socketsRoom = null
 io.on("connection", (socket) => {
     
-    socket.on("setId", _ => {
-        i++
-
-        sockets[i].id = socket.id;
-        console.log(sockets);
+    socket.on("setId", data => {
+        let {socketId, room} = data
+        currentRoom = room
+        io.sockets.adapter.rooms.get(room).size === 1? sockets[0].id = socket.id : sockets[1].id = socket.id
     })
     socket.on("createRoom", data => {
         let {room} = data
-        socketsRoom = room
-        socket.emit("getResp", {id: socket.id})
+        socket.emit('getId', {socketId: socket.id})
         socket.join(room)
     })
+
     socket.on('checkIfExists', data => {
         let {room} = data
         let id = socket.id
-        socket.emit("getResp", {id})
         if(io.sockets.adapter.rooms.get(room)) {
-                let exist = true;
                 socket.join(room)
+                socket.emit("getResp", {id})
+                let exist = true;
                 io.in(room).emit('response', {exist})
-                console.log(io.sockets.adapter.rooms);
         } else {
             let notFound = false
             socket.emit('error', {notFound})
@@ -54,26 +51,36 @@ io.on("connection", (socket) => {
     socket.on("finishedPreparing", data => {
         playersFinished.push('finished')
         let {room} = data
-        console.log(room);
-        playersFinished.length === 2? io.in(room).emit('playerFinishedPreparing', {}) : null
+        playersFinished.length === 2? io.in(room).emit('playerFinishedPreparing') : null
         
     })
     socket.on("message", data => {
         let {msg, room} = data
-        console.log(io.sockets.adapter.rooms.get(`${room}`));
         socket.to(room).emit('receiveMsg', {msg})
+    })
+    socket.on("checkForShip", data => {
+        console.log(data);
+        let {y,x, room} = data 
+        socket.to(room).emit("getAttacked", {y,x})
+    })
+    socket.on("gotAttacked_True", cords => {
+        let {y,x} = cords 
+        console.log('attacked');
+        socket.to(currentRoom).emit("attacked", {y,x})
+    })
+    socket.on("gotMissed_False", cords => {
+        let {y,x} = cords 
+        console.log('missed');
+        socket.to(currentRoom).emit("missed", {y,x})
     })
     socket.on("changeTurn", data => {
         let {socketId, beginning} = data;
-        console.log(sockets[0].turn, sockets[1].turn);
-
-        if(beginning) socketId.id === sockets[0].id? io.to(sockets[0].id).emit("turn", {turn: sockets[0].turn}) : io.to(sockets[1].id).emit("turn", {turn: sockets[1].turn})
+        if(beginning) socketId === sockets[0].id? io.to(sockets[0].id).emit("turn", {turn: sockets[0].turn}) : io.to(sockets[1].id).emit("turn", {turn: sockets[1].turn})
         else {
             sockets[0].turn === true? sockets[0].turn = false : sockets[0].turn = true
             sockets[1].turn === true? sockets[1].turn = false : sockets[1].turn = true
             io.to(sockets[0].id).emit("turn", {turn: sockets[0].turn})
             io.to(sockets[1].id).emit("turn", {turn: sockets[1].turn})
-            console.log(sockets);
         }
 
     })

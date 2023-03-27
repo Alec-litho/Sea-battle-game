@@ -67,17 +67,32 @@ export default class logic {
             }
         }
     }
+    // attackShip(y,x) {
+    //     if(this.checkForBarriers()) {
+    //         console.log('attacked');
+    //         let lastIndex = this.existingShips.length-1
+    //         let cords = this.existingShips[lastIndex].shipCells.cords.filter(cord => cord != y + x )
+    //         this.myField[y][x] = 1
+    //         this.existingShips[lastIndex].shipCells.cords = cords
+    //         this.removeShip()
+    //     } else {
+    //         console.log(`there's no ship`);
+    //     }
+    // }
     attackShip(y,x) {
-        if(this.checkForBarriers()) {
-            console.log('attacked');
-            let lastIndex = this.existingShips.length-1
-            let cords = this.existingShips[lastIndex].shipCells.cords.filter(cord => cord != y + x )
-            this.myField[y][x] = 1
-            this.existingShips[lastIndex].shipCells.cords = cords
-            this.removeShip()
-        } else {
-            console.log(`there's no ship`);
-        }
+
+            if(this.myField[y][x] === 2) {
+                console.log('attacked');
+                let lastIndex = this.existingShips.length-1
+                let cords = this.existingShips[lastIndex].shipCells.cords.filter(cord => cord != y + x )
+                this.myField[y][x] = 1
+                this.existingShips[lastIndex].shipCells.cords = cords
+                this.removeShip()
+                return true
+                
+            } else {
+                return false 
+            }
     }
     // (ship => ship.x !== xcord && ship.y !== ycord)
     checkExistingShips(xcord,ycord) {
@@ -91,9 +106,11 @@ export default class logic {
     }
     checkForBarriers() {
         let {x:Xcord, y:Ycord, ship} = this.currentShipFunc()
+
         for (let y = 0; y < ship.length; y++) {
             for (let x = 0; x < ship[y].length; x++) {
-                if(this.myField[Ycord + y][Xcord + x] === undefined || this.myField[Ycord + y][Xcord + x] === 2) return true
+                if(this.myField[Ycord + y][Xcord + x] === 2) return true
+                // if(this.myField[Ycord + y][Xcord + x] === undefined || this.myField[Ycord + y][Xcord + x] === 2) return true
             }
         }
     }

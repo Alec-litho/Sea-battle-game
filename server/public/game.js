@@ -4,17 +4,14 @@ import Player from './players.js';
 document.querySelector('.newGame').addEventListener('click', _ => {
     let room = document.querySelector('.createRoomVal').value
     if(room !== '' ) {
+        console.log(room);
         const socket = io("http://localhost:3000")
-        socket.emit("setId")
         socket.emit("createRoom", {room})
-        socket.on("getResp", socketId => {
-            console.log(socketId);
-            let {id} = socketId
-            socket.on("response", connected => {
-                startGame(socket, room, socketId)
-            })
-        })
-        
+        socket.on("getId", data => {
+            let {socketId} = data
+            socket.emit("setId", {socketId, room})
+            socket.on("response", _ => startGame(socket, room, socketId))  
+        })      
     }
 })
 document.querySelector('.join_room').addEventListener('click', _ => {
@@ -22,13 +19,11 @@ document.querySelector('.join_room').addEventListener('click', _ => {
     if(room !== '' ) {
         const socket = io("http://localhost:3000")
         socket.emit("checkIfExists", {room})
-        socket.emit("setId")
         socket.on("getResp", socketId => {
-        console.log(socketId)
-        let {id} = socketId
-        socket.on('response', data => {
-            startGame(socket, room, socketId)
-        })
+           socket.emit("setId", {socketId, room})
+           console.log(socketId)
+           let {id} = socketId
+           socket.on('response', data => startGame(socket, room, socketId))
         })
        
         socket.on('error', err => {
@@ -42,8 +37,7 @@ function startGame(socket, room, socketId) {
     document.querySelector('.game').style.display = 'flex'
     document.querySelector('.ships').style.display = 'grid'
     document.querySelector('.startGame').style.display = 'none'
-    const newPlayerOne = new Player()//first player
-    
+    const newPlayerOne = new Player()//first player  
     // const newPlayerTwo = new Player()//second player
 
     const game = new Logic()//loading logic
@@ -58,16 +52,16 @@ function startGame(socket, room, socketId) {
     game.existingShips = newPlayerOne.existingShips
     game.myField = newPlayerOne.field
 
-    prepareStage(cellsPlayerOne, cellsPlayerOne[0].parentNode, cellsPlayerTwo, game.shipList['one'], socketId)
+
+    prepareStage(cellsPlayerOne, cellsPlayerOne[0].parentNode, cellsPlayerTwo, game.shipList['one'], socketId, room)
 
 
 //------------------------------Start game function--------------------------------
-    function logic(myCells, enemyCells, myBoard, enemyBoard, socketId) {
+    function logic(myCells, enemyCells, myBoard, enemyBoard, socketId, room) {
         socket.on('turn', data => {
             let {turn} = data
             console.log(turn, socketId);
             if(turn) {
-                    let val = false
                     console.log('start');
             //fire-------------------------------------------------------
                      enemyCells.forEach(cell => {
@@ -76,11 +70,16 @@ function startGame(socket, room, socketId) {
                     function attack(e) {
                         e.preventDefault()
                         let cell = e.target
-                        // socket.emit("checkForShip", {cell})
-                        cell.className === "cell ship"?  attacked(cell) : missed(cell)
-                        cell.classList.remove('ship')
-                        game.attackShip(cell.dataset.cord[0],  cell.dataset.cord[1])
-                        val? null : change()    
+                        console.log(cell);
+                        socket.emit("checkForShip", {x: e.target.dataset.cord[1], y: e.target.dataset.cord[0], room})
+                        socket.on("missed", data => {
+                            cell.classList.add('attacked')
+                            change()    
+                        })
+                        socket.on("attacked", data => {
+                            cell.classList.add('attackedShip')
+                        })
+                        
                     }
             //Clear and change turn functions----------------------------       
                     function change() {
@@ -92,30 +91,23 @@ function startGame(socket, room, socketId) {
                             enemyCell.removeEventListener('contextmenu', attack)
                         })
                     }
-            //status functions--------------------------------------------
-                    function missed(cell) {
-                        cell.classList.add('attacked')
-                        val = false
-                    }
-                    function attacked(cell) {
-                        cell.classList.add('attackedShip')
-                        val = true
-                    }
             
             } else {
                 console.log('turn = false');
-                socket.on('getAttacked', _ => {
-
+                socket.on('getAttacked', cords => {
+                    let {y,x} = cords 
+                    let result = game.attackShip(+y,+x)
+                    result === true? socket.emit("gotAttacked_True", {y,x}) : socket.emit("gotMissed_False", {y,x})
                 })
             }
         }
     )}
 
-    function prepareStage(cells, board, cellsEnemy, ship, socketId) {
+    function prepareStage(cells, board, cellsEnemy, ship, socketId, room) {
         socket.on("playerFinishedPreparing", _ => {//waiting for second player to finsih preparing
             console.log('playerFinishedPreparing');
             socket.emit('changeTurn', {socketId, beginning: true})
-            logic(cellsPlayerOne, cellsPlayerTwo, cellsPlayerOne[0].parentNode, cellsPlayerTwo[0].parentNode, socketId)
+            logic(cellsPlayerOne, cellsPlayerTwo, cellsPlayerOne[0].parentNode, cellsPlayerTwo[0].parentNode, socketId, room)
         })
         document.querySelector('.btn').addEventListener('click', _ => {
             if(shipsCount.reduce((a,b) => a+b,0) === 10) {
