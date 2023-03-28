@@ -54,13 +54,9 @@ io.on("connection", (socket) => {
         playersFinished.length === 2? io.in(room).emit('playerFinishedPreparing') : null
         
     })
-    socket.on("message", data => {
-        let {msg, room} = data
-        socket.to(room).emit('receiveMsg', {msg})
-    })
     socket.on("checkForShip", data => {
-        console.log(data);
         let {y,x, room} = data 
+        console.log(y, x);
         socket.to(room).emit("getAttacked", {y,x})
     })
     socket.on("gotAttacked_True", cords => {
@@ -73,6 +69,7 @@ io.on("connection", (socket) => {
         console.log('missed');
         socket.to(currentRoom).emit("missed", {y,x})
     })
+
     socket.on("changeTurn", data => {
         let {socketId, beginning} = data;
         if(beginning) socketId === sockets[0].id? io.to(sockets[0].id).emit("turn", {turn: sockets[0].turn}) : io.to(sockets[1].id).emit("turn", {turn: sockets[1].turn})

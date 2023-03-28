@@ -65,13 +65,12 @@ function startGame(socket, room, socketId) {
                     console.log('start');
             //fire-------------------------------------------------------
                      enemyCells.forEach(cell => {
-                        cell.addEventListener('contextmenu', attack)   
+                        cell.addEventListener('click', attack)   
                     })
                     function attack(e) {
-                        e.preventDefault()
                         let cell = e.target
-                        console.log(cell);
                         socket.emit("checkForShip", {x: e.target.dataset.cord[1], y: e.target.dataset.cord[0], room})
+
                         socket.on("missed", data => {
                             cell.classList.add('attacked')
                             change()    
@@ -82,22 +81,34 @@ function startGame(socket, room, socketId) {
                         
                     }
             //Clear and change turn functions----------------------------       
-                    function change() {
+                    function change() {  
+                        socket.off("missed")
+                            socket.off("attacked")
+                        socket.off("getAttacked")                  
                         clearCurrentAttack(enemyCells)
                         socket.emit('changeTurn', {socketId})
                     }
                     function clearCurrentAttack(enemyCells) {
                         enemyCells.forEach(enemyCell => {
-                            enemyCell.removeEventListener('contextmenu', attack)
+                            enemyCell.removeEventListener('click', attack)
                         })
                     }
             
             } else {
-                console.log('turn = false');
+                console.log('wait');
                 socket.on('getAttacked', cords => {
                     let {y,x} = cords 
                     let result = game.attackShip(+y,+x)
-                    result === true? socket.emit("gotAttacked_True", {y,x}) : socket.emit("gotMissed_False", {y,x})
+                    if(result === true) {
+                        socket.off("missed")
+                        socket.off("attacked")
+                        socket.emit("gotAttacked_True", {y,x}) 
+                        
+                    }else {
+                        socket.off("missed")
+                        socket.off("attacked")
+                        socket.emit("gotMissed_False", {y,x})
+                    }
                 })
             }
         }
@@ -110,7 +121,7 @@ function startGame(socket, room, socketId) {
             logic(cellsPlayerOne, cellsPlayerTwo, cellsPlayerOne[0].parentNode, cellsPlayerTwo[0].parentNode, socketId, room)
         })
         document.querySelector('.btn').addEventListener('click', _ => {
-            if(shipsCount.reduce((a,b) => a+b,0) === 10) {
+            if(shipsCount.reduce((a,b) => a+b,0) === 2) {
                 setTimeout(() => {
                     clearInterval(interval)
                     clearInterval(loadShipInterval)
@@ -168,7 +179,7 @@ function startGame(socket, room, socketId) {
                         shipsCount[3]++
                         break
                 }
-                if (shipsCount.reduce((a,b) => a+b,0) === 10){
+                if (shipsCount.reduce((a,b) => a+b,0) === 2){
                     cells.forEach(cell => {
                         cell.removeEventListener('click', placeShip)
                     })   
