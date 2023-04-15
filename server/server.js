@@ -48,12 +48,14 @@ io.on("connection", (socket) => {
             socket.emit('error', {notFound})
         }
     })
+
     socket.on("finishedPreparing", data => {
         playersFinished.push('finished')
         let {room} = data
         playersFinished.length === 2? io.in(room).emit('playerFinishedPreparing') : null
         
     })
+    
     socket.on("checkForShip", data => {
         let {y,x, room} = data 
         console.log(y, x);

@@ -38,7 +38,6 @@ function startGame(socket, room, socketId) {
     document.querySelector('.ships').style.display = 'grid'
     document.querySelector('.startGame').style.display = 'none'
     const newPlayerOne = new Player()//first player  
-    // const newPlayerTwo = new Player()//second player
 
     const game = new Logic()//loading logic
     window.game  = game
@@ -47,13 +46,17 @@ function startGame(socket, room, socketId) {
     let shipsToPut = document.querySelectorAll('.shipToPut')
     let board = document.querySelector('.board')
     let prepare = true //if false, the preparing stage is finished
-
+    let ship = {
+        type: game.shipList['one'],
+        direction: 'vertical'
+    }
 
     game.existingShips = newPlayerOne.existingShips
     game.myField = newPlayerOne.field
 
 
-    prepareStage(cellsPlayerOne, cellsPlayerOne[0].parentNode, cellsPlayerTwo, game.shipList['one'], socketId, room)
+    prepareStage(cellsPlayerOne, cellsPlayerOne[0].parentNode, cellsPlayerTwo, ship, socketId, room)
+    window.newPlayerOne = newPlayerOne
 
 
 //------------------------------Start game function--------------------------------
@@ -77,13 +80,15 @@ function startGame(socket, room, socketId) {
                         })
                         socket.on("attacked", data => {
                             cell.classList.add('attackedShip')
+                            socket.off("attacked")
+                            socket.off("missed")
                         })
                         
                     }
             //Clear and change turn functions----------------------------       
                     function change() {  
                         socket.off("missed")
-                            socket.off("attacked")
+                        socket.off("attacked")
                         socket.off("getAttacked")                  
                         clearCurrentAttack(enemyCells)
                         socket.emit('changeTurn', {socketId})
@@ -99,14 +104,11 @@ function startGame(socket, room, socketId) {
                 socket.on('getAttacked', cords => {
                     let {y,x} = cords 
                     let result = game.attackShip(+y,+x)
+                    socket.off("missed")
+                    socket.off("attacked")
                     if(result === true) {
-                        socket.off("missed")
-                        socket.off("attacked")
                         socket.emit("gotAttacked_True", {y,x}) 
-                        
                     }else {
-                        socket.off("missed")
-                        socket.off("attacked")
                         socket.emit("gotMissed_False", {y,x})
                     }
                 })
@@ -120,27 +122,39 @@ function startGame(socket, room, socketId) {
             socket.emit('changeTurn', {socketId, beginning: true})
             logic(cellsPlayerOne, cellsPlayerTwo, cellsPlayerOne[0].parentNode, cellsPlayerTwo[0].parentNode, socketId, room)
         })
+        let one = document.querySelector('#one')
+        let four = document.querySelector('#four')
+        let two = document.querySelector('#two')
+        let three = document.querySelector('#three')
+
         document.querySelector('.btn').addEventListener('click', _ => {
-            if(shipsCount.reduce((a,b) => a+b,0) === 2) {
+            if(shipsCount.reduce((a,b) => a+b,0) >= 10) {
                 setTimeout(() => {
                     clearInterval(interval)
-                    clearInterval(loadShipInterval)
                     clear(cells, cellsEnemy)
                     prepare = !prepare
                     socket.emit('finishedPreparing', {room})
                 },500)
                 document.querySelector('.btn').style.display = 'none'
             } else {
+                console.log(shipsCount);
                 console.log('some ships are not used');
             }
         })
         //Ships to put------------------------------------------------
         let shipsAllKinds = document.querySelectorAll('.shipToPut')
+        function setShipToView() {
+            let id = ship.type[0].length==1? 'one' : ship.type[0].length==2? 'two' : ship.type[0].length==3? 'three' : "four"
+            document.querySelector('.currentShip').setAttribute('id', `${id}`)
+        }
         function chooseShip(e) {
-            ship = game.shipList[e.target.dataset.num]
+            ship.type = game.shipList[e.target.dataset.num]
         }
         shipsAllKinds.forEach(item => {
             item.addEventListener('click', chooseShip)
+        })  
+        shipsAllKinds.forEach(item => {
+            item.addEventListener('click', setShipToView)
         })  
         let interval = setInterval(_ => update(cells), 100) 
     
@@ -159,13 +173,17 @@ function startGame(socket, room, socketId) {
         cells.forEach(cell => {
             cell.addEventListener('click', placeShip)
         })         
-        function placeShip(e) {game.click(e.target.dataset.cord[0], e.target.dataset.cord[1], ship)}
+        let direction = 'vertical'
         let shipsCount = [0/*first ship*/,0/*second ship*/,0/*third ship*/,0/*fourth ship*/]
+        function placeShip(e) {
+            loadShip()
+            game.click(e.target.dataset.cord, e.target.dataset.cord[0], e.target.dataset.cord[1], ship, direction)
+        }
         cells.forEach( cell => {
             cell.addEventListener('click', smthWithShips)
         })
         function smthWithShips() {
-                switch(ship[0].length) {
+                switch(ship.type[0].length) {
                     case 1:
                         shipsCount[0]++
                         break
@@ -179,19 +197,22 @@ function startGame(socket, room, socketId) {
                         shipsCount[3]++
                         break
                 }
-                if (shipsCount.reduce((a,b) => a+b,0) === 2){
+                if (shipsCount.reduce((a,b) => a+b,0) >= 10){
+                    document.querySelector('.currentShip').style.display ='none'
                     cells.forEach(cell => {
                         cell.removeEventListener('click', placeShip)
                     })   
                 }
+                console.log(shipsCount, shipsCount[0] === 4);
+                loadShip()
         }
         function loadShip() {
-            if(shipsCount[0] === 4) {document.querySelector('#one').classList.add('hide'); ship = game.shipList['two']}
-            if(shipsCount[1] === 3) {document.querySelector('#two').classList.add('hide'); ship = game.shipList['three']}
-            if(shipsCount[2] === 2) {document.querySelector('#three').classList.add('hide'); ship = game.shipList['four']}
-            if(shipsCount[3] === 1) {document.querySelector('#four').classList.add('hide');}//need to be fixed
+            if(shipsCount[0] === 4) {one.classList.add('hide'); ship.type = game.shipList['two']; game.shipList['one'] = game.shipList['two']}
+            if(shipsCount[1] === 3) {two.classList.add('hide'); ship.type = game.shipList['three']; game.shipList['two'] = game.shipList['three']}
+            if(shipsCount[2] === 2) {three.classList.add('hide'); ship.type = game.shipList['four']; game.shipList['three'] = game.shipList['four']}
+            if(shipsCount[3] === 1) {four.classList.add('hide'); ship.type = game.shipList['one']; console.log('w');}
+            setShipToView() 
         }
-        let loadShipInterval = setInterval(_ => loadShip(), 100)
     }
     //--------------------------updateView-------------------------------
     function update(cells) {

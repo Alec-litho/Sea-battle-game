@@ -1,19 +1,30 @@
 class Ship {
-    constructor(y,x,kind) {
+    constructor(cord,y,x,ship) {
+        console.log(cord);
         this.y = +y
         this.x = +x
-        this.kind = kind
+        this.ship = ship
 
-        this.start = y+x
-        kind[0].length == 1? this.end = +this.start : this.end = +this.start + kind[0].length-1
+        this.start = cord
+        if(ship.direction === 'horizontal') ship.type[0].length == 1? this.end = +this.start : this.end = this.start[0] + (+this.start[1] + ship.type[0].length-1)
+        else {ship.type[0].length == 1? this.end = +this.start[0] : this.end = (+this.start[0] + ship.type[0].length-1) + this.start[1] }
+
         this.id = Math.floor(Math.random() * 100000)
         this.shipCells = (_ => {
-            let lengthNum = this.end - this.start + 1
             let lengthCords = []
-            let a = this.start
-            while(a <= this.end) {lengthCords.push(a++)}
+            let extendigCord = ship.direction === 'horizontal'? parseFloat(this.start[1])-1 : parseFloat(this.start[0])-1
+
+            if(ship.direction === 'horizontal') {
+                console.log(extendigCord, +this.end[1]);
+                while(extendigCord < (+this.end[1])) {
+                    lengthCords.push(this.start[0] + (++extendigCord))
+                }
+            } else {
+                while(extendigCord < (+this.end[0])) {
+                    lengthCords.push((++extendigCord) + this.start[1] )
+                }
+            }
             return {
-                num: lengthNum,
                 cords: lengthCords
             }
         })()
@@ -21,9 +32,8 @@ class Ship {
 }
 
 export default class logic {
-    init = () => this.createShip(0,0,this.shipList.one)//creating first ship
-    //------------------it will be change depending on which turn is it right now
-    existingShips = []//thus it's either player one or player two
+    init = () => this.createShip(0,0,this.shipList.one)
+    existingShips = []
     myField = [[],[]]
     //------------------
     shipList = {
@@ -37,15 +47,19 @@ export default class logic {
         let obj = {}
         obj.x = this.existingShips[this.existingShips.length-1].x
         obj.y = this.existingShips[this.existingShips.length-1].y
-        obj.ship = this.existingShips[this.existingShips.length-1].kind
+        console.log(this.existingShips);
+        obj.ship = {
+            type: this.existingShips[this.existingShips.length-1].ship.type,
+            direction: 'horizontal'
+        }
         return obj
     }
-    click(y,x,kind) {
-        if(this.checkExistingShips(+x,+y) || kind == undefined) {
+    click(cord,y,x,ship, direction) {
+        if(this.checkExistingShips(+x,+y) || ship.type == undefined) {
             console.log(`exists - ${x,y}`, this.existingShips);
             return
         } else {
-            this.createShip(y,x,kind)
+            this.createShip(cord,y,x,ship, direction)
         }
 
         if(this.checkForBarriers()) {
@@ -59,11 +73,10 @@ export default class logic {
     placeShip() {
         let gapX, gapY
         let {x:Xcord, y:Ycord, ship} = this.currentShipFunc()
-        // Xcord === 0? gapX = 0 : gapX = 1
-        // Ycord === 0? gapY = 0 : Ycord = 1
+        console.log(ship);
         for (let y = 0; y < ship.length;  y++) {
-            for (let x = 0; x < ship[y].length; x++) {
-                    this.myField[Ycord  + y][Xcord  + x] = ship[y][x]
+            for (let x = 0; x < ship.type[y].length; x++) {
+                    this.myField[Ycord  + y][Xcord  + x] = ship.type[y][x]
             }
         }
     }
@@ -80,16 +93,18 @@ export default class logic {
     //     }
     // }
     attackShip(y,x) {
-
             if(this.myField[y][x] === 2) {
                 console.log('attacked');
                 let lastIndex = this.existingShips.length-1
-                let cords = this.existingShips[lastIndex].shipCells.cords.filter(cord => cord != y + x )
+                console.log(y,x);
+                this.existingShips.forEach(ship => {
+                    ship.shipCells.cords.map((cord, id) => {
+                        if(cord.toString() === `${y} + ${x}`) ship.shipCells.cords.splice(id, 1)
+                     })
+                })
                 this.myField[y][x] = 1
-                this.existingShips[lastIndex].shipCells.cords = cords
                 this.removeShip()
-                return true
-                
+                return true      
             } else {
                 return false 
             }
@@ -107,20 +122,22 @@ export default class logic {
     checkForBarriers() {
         let {x:Xcord, y:Ycord, ship} = this.currentShipFunc()
 
-        for (let y = 0; y < ship.length; y++) {
-            for (let x = 0; x < ship[y].length; x++) {
+        for (let y = 0; y < ship.type.length; y++) {
+            for (let x = 0; x < ship.type[y].length; x++) {
                 if(this.myField[Ycord + y][Xcord + x] === 2) return true
                 // if(this.myField[Ycord + y][Xcord + x] === undefined || this.myField[Ycord + y][Xcord + x] === 2) return true
             }
         }
     }
     removeShip() {
-        let existingShips = this.existingShips.filter(ship => ship.shipCells.cords.length > 0)
-        this.existingShips = existingShips
+        this.existingShips.forEach(ship => {
+            ship.shipCells.cords.length > 0? console.log(ship) : console.log(ship, 'this ship is suppossed to be deleted') 
+        })
+        this.existingShips = this.existingShips.filter(ship => ship.shipCells.cords.length > 0)
     }
-    createShip(y,x,kind) {
-        let ship = new Ship(y,x,kind)
-        this.existingShips.push(ship)
+    createShip(cord,y,x,ship, direction) {
+        let createdShip = new Ship(cord,y,x,ship)
+        this.existingShips.push(createdShip)
 
     }
 }
