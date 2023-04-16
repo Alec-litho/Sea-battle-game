@@ -37,7 +37,7 @@ function startGame(socket, room, socketId) {
     document.querySelector('.game').style.display = 'flex'
     document.querySelector('.ships').style.display = 'grid'
     document.querySelector('.startGame').style.display = 'none'
-    const newPlayerOne = new Player()//first player  
+    // const newPlayerOne = new Player()
 
     const game = new Logic()//loading logic
     window.game  = game
@@ -51,12 +51,12 @@ function startGame(socket, room, socketId) {
         direction: 'vertical'
     }
 
-    game.existingShips = newPlayerOne.existingShips
-    game.myField = newPlayerOne.field
+    // game.existingShips = newPlayerOne.existingShips
+    // game.myField = newPlayerOne.field
 
 
     prepareStage(cellsPlayerOne, cellsPlayerOne[0].parentNode, cellsPlayerTwo, ship, socketId, room)
-    window.newPlayerOne = newPlayerOne
+    // window.newPlayerOne = newPlayerOne
 
 
 //------------------------------Start game function--------------------------------
@@ -203,7 +203,6 @@ function startGame(socket, room, socketId) {
                         cell.removeEventListener('click', placeShip)
                     })   
                 }
-                console.log(shipsCount, shipsCount[0] === 4);
                 loadShip()
         }
         function loadShip() {
