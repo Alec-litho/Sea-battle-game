@@ -45,16 +45,29 @@ function startGame(socket, room, socketId) {
     let cellsPlayerTwo = [...document.querySelector('.boardPlayerTwo').childNodes].filter(cell => cell.nodeType === Node.ELEMENT_NODE)//second player cells
     let shipsToPut = document.querySelectorAll('.shipToPut')
     let board = document.querySelector('.board')
-    let prepare = true //if false, the preparing stage is finished
+    let prepare = false //if false, the preparing stage is finished
+    let vertical = true
     let ship = {
         type: game.shipList['one'],
-        direction: 'vertical'
+        direction: 'horizontal'
     }
-
-    // game.existingShips = newPlayerOne.existingShips
-    // game.myField = newPlayerOne.field
-
-
+    function turnShipsAround() {
+        let ships = [...shipsToPut]
+        if(vertical) {
+            ships.forEach(ship => ship.style.width = '25px');
+            for(let i=1; i <= ships.length; i++) ships[i-1].style.height = `${i * 25}px`
+            vertical = !vertical
+            ship.direction = vertical? 'horizontal' : 'vertical'
+        } else {
+            ships.forEach(ship => ship.style.height = '25px');
+            ships[0].style.height = '25px'
+            for(let i=1; i <= ships.length; i++) ships[i-1].style.width = `${i * 25}px`
+            vertical = !vertical
+            ship.direction = vertical? 'horizontal' : 'vertical'
+        }
+        
+    }
+    document.querySelector('.turnAround').addEventListener('click', turnShipsAround)
     prepareStage(cellsPlayerOne, cellsPlayerOne[0].parentNode, cellsPlayerTwo, ship, socketId, room)
     // window.newPlayerOne = newPlayerOne
 
@@ -173,15 +186,14 @@ function startGame(socket, room, socketId) {
         cells.forEach(cell => {
             cell.addEventListener('click', placeShip)
         })         
-        let direction = 'vertical'
         let shipsCount = [0/*first ship*/,0/*second ship*/,0/*third ship*/,0/*fourth ship*/]
         function placeShip(e) {
-            loadShip()
-            game.click(e.target.dataset.cord, e.target.dataset.cord[0], e.target.dataset.cord[1], ship, direction)
+            console.log(ship);
+            if(game.click(e.target.dataset.cord, e.target.dataset.cord[0], e.target.dataset.cord[1], ship)) {
+                smthWithShips();
+                loadShip()
+            } 
         }
-        cells.forEach( cell => {
-            cell.addEventListener('click', smthWithShips)
-        })
         function smthWithShips() {
                 switch(ship.type[0].length) {
                     case 1:

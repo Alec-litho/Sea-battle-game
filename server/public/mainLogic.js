@@ -1,6 +1,5 @@
 class Ship {
     constructor(cord,y,x,ship) {
-        console.log(cord);
         this.y = y
         this.x = x
         this.ship = ship
@@ -18,7 +17,7 @@ class Ship {
                     lengthCords.push(this.start[0] + (++extendingCord))
                 }
             } else {
-                console.log(extendingCord, this.end[0]);
+                // console.log(extendingCord, this.end[0]);
                 while(extendingCord < (+this.end[0])) {
                     lengthCords.push((++extendingCord) + this.start[1] )
                 }
@@ -62,12 +61,12 @@ export default class logic {
         }
         return obj
     }
-    click(cord,y,x,ship, direction) {
+    click(cord,y,x,ship) {
         if(this.checkExistingShips(+x,+y) || ship.type == undefined) {
             console.log(`exists - ${x,y}`, this.existingShips);
             return
         } else {
-            this.createShip(cord,y,x,ship, direction)
+            this.createShip(cord,y,x,ship)
         }
 
         if(this.checkForBarriers()) {
@@ -75,6 +74,7 @@ export default class logic {
             this.existingShips.pop()
         } else {
             this.placeShip()
+            return true
         }
     }
 
@@ -128,24 +128,55 @@ export default class logic {
         }
     }
     checkForBarriers() {
-        // let {x:Xcord, y:Ycord, ship} = this.currentShipFunc()
         let currShip = this.existingShips[this.existingShips.length-1]
         let cords = currShip.shipCells
         let direction = currShip.direction
-        console.log(currShip);
         let shipTypeLen = currShip.shipCells.length
         let currCord = +cords[0] 
-        console.log(+cords[0][0] - 11, +cords[0][1] - 11);
-        let startCord = +cords[0][0] - 11 === 0 || +cords[0][1] - 11 === 0? '00' : `${(+cords[0][0]*10 - 10)}` + `${(+cords[0][1] - 1)}`
-        let endCord = currShip.direction === 'horizontal'? `${currCord + (10 + shipTypeLen)}` : `${currCord + (shipTypeLen * 10 + 1)}`//string
+        console.log(+cords[0][0], +cords[0][1]);// cords[0][0] = y && cords[0][1] = x
+        let startCord;
+        if(+cords[0][0] - 11 === 0 || +cords[0][1] - 11 === 0) startCord = '00'
+        else{
+            let y = `${(+cords[0][0]*10 - 10)}`
+            let x = `${(+cords[0][1] - 1)}`
+            // console.log(y, x, 'before');
+            //y.length === 3 --> '-10', y.length === 2 --> '10'
+            // y.length === 3? y = y.slice(1, 1) : y = y.length === 2? y = y.slice(1, 2) : y
+            y.length === 3? y = y.slice(0, 2) : y = y.slice(0, 1)
+            // x.length === 2? x = x.slice(1, 2) : x
+            while(Math.sign(+x) === -1) x = parseFloat(x) + 1
+            while(Math.sign(+y) === -1) y = parseFloat(y) + 1
+            startCord = y.toString() + x
+            // console.log(y, x,startCord, 'after');
+        }
+        //[0-->startCord,0,0]
+        //[0,1,0]
+        //[0,0,0--> endCord]
+        parseFloat(currCord).toString().slice(1,2) === '9'? currCord = parseFloat(currCord) - 1 : currCord
+        let endCord = currShip.direction === 'horizontal'? `${parseFloat(currCord) + (10 + shipTypeLen)}` : `${parseFloat(currCord) + (shipTypeLen * 10 + 1)}`
+        while(endCord.length === 3) {
+            let firstSlice = endCord.slice(0,2)
+            let secondSlice = endCord.slice(2,3)
+            console.log(firstSlice, secondSlice);
+            firstSlice = parseFloat(firstSlice) -1
+            endCord = `${firstSlice}` + secondSlice
 
-        console.log(currCord, startCord, endCord);
+        }
+        console.log(endCord);
+
+        // console.log(currCord, startCord, endCord);
         for (let y = +startCord[0]; y <= +endCord[0]; y++) {
             for (let x = +startCord[1]; x <= +endCord[1]; x++) {
                 console.log(y, x);
                 if(this.myField[y][x] === 2) {console.log('barrier');return true }
             }
-        }
+        }//this loop wraps ship in square and checks if there's another ship around ship's borders
+        //it can look like that:
+        //[0,0,0], [0,0,0,0,0]
+        //[0,1,0], [0,1,1,1,0]
+        //[0,0,0], [0,0,0,0,0]
+
+
         // for (let y = 4; y <= 6; y++) {
         //     for (let x = 2; x <= 5; x++) {
         //         if(this.myField[y][x] === 2) return true 
@@ -164,7 +195,7 @@ export default class logic {
         })
         this.existingShips = this.existingShips.filter(ship => ship.shipCells.length > 0)
     }
-    createShip(cord,y,x,ship, direction) {
+    createShip(cord,y,x,ship) {
         let createdShip = new Ship(cord,y,x,ship)
         this.existingShips.push(createdShip)
 
@@ -172,3 +203,5 @@ export default class logic {
 }
 
 
+
+        // let startCord = +cords[0][0] - 11 === 0 || +cords[0][1] - 11 === 0? '00' : `${(+cords[0][0]*10 - 10)}` + toString(+cords[0][1] - 1).slice

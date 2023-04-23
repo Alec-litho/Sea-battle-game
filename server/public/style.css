@@ -63,10 +63,13 @@ body {
 
 .shipToPut {
     cursor: pointer;
-    width: var(--cell-size);
-    height: var(--cell-size);
     border-radius: 5px;
     background-color: rgb(47, 59, 97);
+}
+.turnAround {
+    width: 50px;
+    height: 50px;
+    fill: rgb(28, 28, 29);
 }
 #none {
     display: none;
@@ -74,27 +77,23 @@ body {
 #one {
     width: var(--cell-size);
     height: var(--cell-size);
-    border-radius: 5px;
-    background-color: rgb(47, 59, 97);
  }
 #two {
    width: calc(var(--cell-size) * 2);
    height: var(--cell-size);
-   border-radius: 5px;
-   background-color: rgb(47, 59, 97);
 }
 #three {
     width: calc(var(--cell-size) * 3);
     height: var(--cell-size);
-    border-radius: 5px;
-    background-color: rgb(47, 59, 97);
 }
 #four {
     width: calc(var(--cell-size) * 4);
     height: var(--cell-size);
-    border-radius: 5px;
-    background-color: rgb(47, 59, 97);
 }
+
+
+
+
 .ships {
     padding-left: 20px;
     width: 300px;
