@@ -5,7 +5,7 @@ const http = require('http')
 const {Server} = require('socket.io')
 
 const cors = require('cors')
-app.get('/', (req, res) => {
+app.get('/', (req, res) => { 
     res.redirect('index.html');
 })
 app.use(cors())

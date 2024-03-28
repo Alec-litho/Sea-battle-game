@@ -1,5 +1,6 @@
 import { Game } from './Game'
 import { io } from 'socket.io-client';
+// import { GameLogic } from './GameLogic';
 
 export class PrepareStage extends Game {
   shipsHTML: NodeListOf<Element> = document.querySelectorAll('.shipToPut');
@@ -84,8 +85,10 @@ export class PrepareStage extends Game {
     this.updateShipsDOM(this.shipsCount)
   }
   public setCurrentShip() {
-    const id = this.shipType[0].length == 1 ? 'one' : this.shipType[0].length == 2 ? 'two' : this.shipType[0].length == 3 ? 'three' : 'four'
+    //fix id setting//----------------------------------------------------------------------------------------
+    const id = this.shipType.type.length == 1 ? 'one' : this.shipType[0].length == 2 ? 'two' : this.shipType[0].length == 3 ? 'three' : 'four'
     document.querySelector('.currentShip').setAttribute('id', `${id}`)
+    //----------------------------------------------------------------------------------------
   }
 
   public updateShipsDOM(arr: number[]) {

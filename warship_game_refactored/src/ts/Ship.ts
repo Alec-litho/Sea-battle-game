@@ -1,13 +1,13 @@
 
 
-class Ship {
+export default class Ship implements IShip{
     public x: number;
     public y: number;
     public direction: string;
     public type: number[];
     public id: number;
-    private startCord: number;
-    private endCord: number;
+    public startCord: number;
+    public endCord: number;
     public allShipCords: number[];
 
     constructor(xCord:number, yCord:number, shipType:ShipType) {

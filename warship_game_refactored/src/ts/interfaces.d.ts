@@ -1,4 +1,4 @@
-interface Ship {
+interface IShip {
   x: number
   y: number
   direction: string
@@ -6,6 +6,7 @@ interface Ship {
   endCord: number
   id: number
   allShipCords: number[]
+
 }
 
 interface ShipType {
@@ -14,13 +15,13 @@ interface ShipType {
 }
 
 interface GameLogicInterface {
-  existingShips: Ship[]
+  existingShips: IShip[]
   map: number[][]
-  appendShip(ship: Ship): void
+  appendShip(ship: IShip): void
   attackShip(x: number, y: number): boolean
   checkIfShipExists(): boolean
   checkForBarriers(cords: string, shipType: ShipType): boolean
   removeShip(shipId: number): void
-  createShip(x: number, y: number, ship: ShipType): Ship
+  createShip(x: number, y: number, ship: ShipType): IShip
   checkForShip(x: string, y: string): boolean
 }
