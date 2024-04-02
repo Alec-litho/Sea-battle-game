@@ -1,5 +1,5 @@
-import { Game } from './Game'
-import { io } from 'socket.io-client';
+import { Game } from './Game.js'
+// import { io } from 'socket.io-client';
 // import { GameLogic } from './GameLogic';
 
 export class PrepareStage extends Game {
@@ -11,7 +11,7 @@ export class PrepareStage extends Game {
   shipTypeList: number[][] = [[2], [2, 2], [2, 2, 2], [2, 2, 2, 2]];
   render: ReturnType<typeof setInterval>;
 
-  constructor(socket: ReturnType<typeof io> , room: string, game: GameLogicInterface) {
+  constructor(socket: any/*ReturnType<typeof io>*/ , room: string, game: GameLogicInterface) {
     super(socket, room)
     this.shipType = {
       type: this.shipTypeList[0],

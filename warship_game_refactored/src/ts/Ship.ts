@@ -4,16 +4,16 @@ export default class Ship implements IShip{
     public x: number;
     public y: number;
     public direction: string;
-    public type: number[];
+    public type: number[]; 
     public id: number;
     public startCord: number;
-    public endCord: number;
+    public endCord: number; 
     public allShipCords: number[];
 
     constructor(xCord:number, yCord:number, shipType:ShipType) {
         this.x = xCord;
         this.y = yCord;
-        this.direction = shipType.direction;
+        this.direction = shipType.direction; 
         this.type = shipType.type
         this.id = Math.floor(Math.random()*255);
         this.startCord = parseFloat(`${xCord}`+`${yCord}`)

@@ -1,13 +1,13 @@
-import { Game } from './Game'
+import { Game } from './Game.js'
 import { io } from 'socket.io-client'
 
 export class GameplayStage extends Game {
   public playerTurn: boolean
-  game: GameLogicInterface//ДЛЯ ЧЕГО ОН НУЖЕН??))
-
+  game: GameLogicInterface//ДЛЯ ЧЕГО ОН НУЖЕН??)) 
+    
   constructor(socket: ReturnType<typeof io>, room: string, game: GameLogicInterface, playerTurn: boolean) {
-    super(socket, room)
-    this.game = game
+    super(socket, room) 
+    this.game = game 
     this.playerTurn = playerTurn
   }
 

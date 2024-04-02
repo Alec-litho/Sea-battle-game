@@ -1,4 +1,4 @@
-import Ship from "./Ship";
+import Ship from "./Ship.js";
 
 export class GameLogic implements GameLogicInterface {
   public existingShips: IShip[] = []

@@ -1,7 +1,9 @@
-import { PrepareStage } from './PrepareStage'
-import { GameplayStage } from './GameplayStage'
-import { GameLogic } from './GameLogic'
+import { PrepareStage } from './PrepareStage.js'
+import { GameplayStage } from './GameplayStage.js'
+import { GameLogic } from './GameLogic.js'
 import { io } from 'socket.io-client'
+
+
 document.querySelector('.newGame').addEventListener('click', createNewGame)
 document.querySelector('.join_room').addEventListener('click', joinGame)
 

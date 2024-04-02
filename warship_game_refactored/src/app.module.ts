@@ -10,7 +10,7 @@ import {join} from 'node:path';
     GameEventsModule, 
     ServeStaticModule.forRoot({ 
       rootPath: join(__dirname,'..','src','public')  
-    })
+    }) 
   ],
   controllers: [AppController],
   providers: [AppService],

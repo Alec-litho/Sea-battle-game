@@ -1,12 +1,14 @@
-{
-  "compilerOptions": {
-    "module": "commonjs",
+
+  {
+    "compilerOptions": {
+    "module": "ES2015",
+    "outDir": "../public",
+    "moduleResolution": "Bundler",
+    "target": "ES6",
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2015",
-    "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
@@ -15,6 +17,5 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
-  },
-  "exclude": ["Game.ts","GameLogic.ts", "GameplayStage.ts","main.ts","PrepareStage.ts","Ship.ts"]
-}
+    },
+  }
