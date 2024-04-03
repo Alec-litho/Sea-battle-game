@@ -22,8 +22,9 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayInit, On
     this.server.sockets.adapter.rooms.get(room).size === 1 ? (this.sockets[0].id = client.id) : (this.sockets[1].id = client.id)
   }
 
-  @SubscribeMessage('createRoom')
+  @SubscribeMessage('createRoom') 
   createRoom(client: Socket, room: string) {
+    console.log("room created","--->",room)
     client.emit('getId', { socketId: client.id })
     client.join(room)
   }
@@ -31,6 +32,7 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayInit, On
   @SubscribeMessage('checkIfExists')
   checkIfExists(client: Socket, room: string) {
     const id = client.id
+    console.log(this.server.sockets.adapter.rooms,this.server.sockets.adapter.rooms.get(room))
     if (this.server.sockets.adapter.rooms.get(room)) {
       client.join(room)
       client.emit('getResp', { id })

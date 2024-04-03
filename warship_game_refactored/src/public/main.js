@@ -8,7 +8,7 @@ function createNewGame() {
     const room = document.querySelector('.createRoomVal');
     const roomVal = room.value;
     if (roomVal !== '')
-        handleConnection("join", room, roomVal);
+        handleConnection("create", room, roomVal);
 }
 function joinGame() {
     const room = document.querySelector('.find_room');
@@ -19,14 +19,18 @@ function joinGame() {
 function handleConnection(type, room, roomVal) {
     const socket = io('http://localhost:3000');
     if (type === "join") {
-        socket.emit('checkIfExists', { room });
-        socket.on('error', () => {
-            const room = document.querySelector('.find_room');
+        socket.emit('checkIfExists', roomVal);
+        socket.on('error', (message) => {
+            const htmlErrMessage = document.querySelector('.errorMessage');
+            htmlErrMessage.innerText = message;
             room.style.border = '1px solid red';
         });
     }
+    else {
+        socket.emit("createRoom", roomVal);
+    }
     socket.on(type === "join" ? 'getResp' : 'getId', (socketId) => {
-        socket.emit('setId', { socketId, room });
+        socket.emit('setId', { socketId, roomVal });
         socket.on('response', () => main(socket, roomVal, socketId, false));
     });
 }

@@ -2,6 +2,8 @@ import { Game } from './Game.js';
 export class PrepareStage extends Game {
     constructor(socket, room, game) {
         super(socket, room);
+        this.board = document.querySelector('.board');
+        this.cells = document.querySelectorAll('.cell');
         this.shipsHTML = document.querySelectorAll('.shipToPut');
         this.finishBTN = document.querySelector('.btn');
         this.shipsCount = [0, 0, 0, 0];
@@ -13,16 +15,23 @@ export class PrepareStage extends Game {
         this.game = game;
         this.render = setInterval(() => this.renderShips, 300);
         this.finishBTN.addEventListener("click", this.finishPrepareStage);
+        this.removeStyles();
+        this.board.addEventListener('click', (e) => {
+            const target = e.target;
+            console.log(target, target.dataset);
+        });
+    }
+    removeStyles() {
+        function qselect(HTMLclass) { return document.querySelector(HTMLclass); }
+        const [game, ships, startGame] = [qselect('.game'), qselect('.ships'), qselect('.startGame')];
+        game.style.display = 'flex';
+        ships.style.display = 'grid';
+        startGame.style.display = 'none';
     }
     clearEvents() {
-        this.cellsPlayerOne.forEach((cells) => {
-            cells.removeEventListener('click', this.placeShip);
-        });
-        this.cellsPlayerOne.forEach((ship) => {
+        this.board.removeEventListener('click', this.placeShip);
+        this.shipsHTML.forEach((ship) => {
             ship.removeEventListener('click', this.chooseShip);
-        });
-        this.cellsPlayerOne.forEach((cell) => {
-            cell.removeEventListener('click', this.incrementShipCount);
         });
     }
     chooseShip(e) {
@@ -30,7 +39,7 @@ export class PrepareStage extends Game {
         this.shipType.type = this.shipTypeList[target.dataset.num];
     }
     renderShips() {
-        [...this.cellsPlayerOne].forEach((cell) => {
+        [...this.cells].forEach((cell) => {
             for (let y = 0; y < this.game.map.length; y++) {
                 for (let x = 0; x < this.game.map[y].length; x++) {
                     if (this.game.map[y][x] === 2) {
@@ -73,7 +82,7 @@ export class PrepareStage extends Game {
         if (this.shipsCount.reduce((a, b) => a + b, 0) >= 10) {
             const currentShip = document.querySelector('.currentShip');
             currentShip.style.display = 'none';
-            this.cellsPlayerOne.forEach((cell) => {
+            this.cells.forEach((cell) => {
                 cell.removeEventListener('click', this.placeShip);
             });
         }

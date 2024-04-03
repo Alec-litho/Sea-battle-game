@@ -3,7 +3,9 @@ import { Game } from './Game.js'
 // import { GameLogic } from './GameLogic';
 
 export class PrepareStage extends Game {
-  shipsHTML: NodeListOf<Element> = document.querySelectorAll('.shipToPut');
+  board: HTMLElement = document.querySelector('.board');
+  cells: NodeListOf<HTMLElement> = document.querySelectorAll('.cell')
+  shipsHTML: NodeListOf<HTMLElement> = document.querySelectorAll('.shipToPut');
   finishBTN = document.querySelector('.btn') as HTMLElement;
   shipsCount: number[] = [0, 0, 0, 0] //[0 (one cell ship),0 (two cells ship), etc...]
   game: GameLogicInterface;
@@ -20,24 +22,34 @@ export class PrepareStage extends Game {
     this.game = game
     this.render = setInterval(() => this.renderShips, 300)
     this.finishBTN.addEventListener("click", this.finishPrepareStage)
+    this.removeStyles()
+    this.board.addEventListener('click', (e:Event) => {
+      const target = e.target as HTMLElement
+      console.log(target, target.dataset)
+    })
+  }
+  private removeStyles() {
+    function qselect(HTMLclass):HTMLDivElement {return document.querySelector(HTMLclass)}//wanted to make it shorter
+    const [game, ships, startGame] = [qselect('.game'),qselect('.ships'),qselect('.startGame')] 
+    game.style.display = 'flex'
+    ships.style.display = 'grid'
+    startGame.style.display = 'none'
   }
   public clearEvents(): void {
-    this.cellsPlayerOne.forEach((cells) => {
-      cells.removeEventListener('click', this.placeShip)
-    })
-    this.cellsPlayerOne.forEach((ship) => {
+    this.board.removeEventListener('click', this.placeShip)
+    this.shipsHTML.forEach((ship) => {
       ship.removeEventListener('click', this.chooseShip)
     })
-    this.cellsPlayerOne.forEach((cell) => {
-      cell.removeEventListener('click', this.incrementShipCount)
-    })
+    // this.cells.forEach((cell) => {
+    //   cell.removeEventListener('click', this.incrementShipCount)
+    // })
   }
   public chooseShip(e: Event): void {
     const target = e.target as HTMLElement
     this.shipType.type = this.shipTypeList[target.dataset.num]
   }
   public renderShips(): void {
-    [...this.cellsPlayerOne].forEach((cell) => {
+    [...this.cells].forEach((cell) => {
       for (let y = 0; y < this.game.map.length; y++) {
         for (let x = 0; x < this.game.map[y].length; x++) {
           if (this.game.map[y][x] === 2) {
@@ -78,7 +90,7 @@ export class PrepareStage extends Game {
     if (this.shipsCount.reduce((a: number, b: number) => a + b, 0) >= 10) {
       const currentShip = document.querySelector('.currentShip') as HTMLElement
       currentShip.style.display = 'none'
-      this.cellsPlayerOne.forEach((cell) => {
+      this.cells.forEach((cell) => {
         cell.removeEventListener('click', this.placeShip)
       })
     }
