@@ -20,6 +20,7 @@ export class GameLogic {
         const shipCords = ship.allShipCords;
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
+                console.log(y, x, shipCords);
                 if (shipCords.some((cord) => +cord[0] === y) && shipCords.some((cord) => +cord[1] === x)) {
                     this.map[y][x] = 2;
                 }
@@ -105,8 +106,8 @@ export class GameLogic {
         });
         this.existingShips = this.existingShips.splice(shipIndx, 1);
     }
-    createShip(x, y, ship) {
-        const createdShip = new this.ShipClass(x, y, ship);
+    createShip(y, x, ship) {
+        const createdShip = new this.ShipClass(y, x, ship);
         this.existingShips.push(createdShip);
         return createdShip;
     }

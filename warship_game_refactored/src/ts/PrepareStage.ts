@@ -4,7 +4,7 @@ import { Game } from './Game.js'
 
 export class PrepareStage extends Game {
   board: HTMLElement = document.querySelector('.board');
-  cells: NodeListOf<HTMLElement> = document.querySelectorAll('.cell')
+  // cells: NodeListOf<HTMLElement> = document.querySelectorAll('.cell')
   shipsHTML: NodeListOf<HTMLElement> = document.querySelectorAll('.shipToPut');
   finishBTN = document.querySelector('.btn') as HTMLElement;
   shipsCount: number[] = [0, 0, 0, 0] //[0 (one cell ship),0 (two cells ship), etc...]
@@ -13,20 +13,17 @@ export class PrepareStage extends Game {
   shipTypeList: number[][] = [[2], [2, 2], [2, 2, 2], [2, 2, 2, 2]];
   render: ReturnType<typeof setInterval>;
 
-  constructor(socket: any/*ReturnType<typeof io>*/ , room: string, game: GameLogicInterface) {
+  constructor(socket: any/*ReturnType<typeof io>*/ , room: string, gameLogic: GameLogicInterface) {
     super(socket, room)
     this.shipType = {
       type: this.shipTypeList[0],
       direction: 'horizontal'
     }
-    this.game = game
-    this.render = setInterval(() => this.renderShips, 300)
-    this.finishBTN.addEventListener("click", this.finishPrepareStage)
+    this.game = gameLogic
+    this.render = setInterval(() => this.renderShips(), 300)
+    this.finishBTN.addEventListener("click", () => this.finishPrepareStage())
     this.removeStyles()
-    this.board.addEventListener('click', (e:Event) => {
-      const target = e.target as HTMLElement
-      console.log(target, target.dataset)
-    })
+    this.board.addEventListener('click', (e) => this.placeShip(e))
   }
   private removeStyles() {
     function qselect(HTMLclass):HTMLDivElement {return document.querySelector(HTMLclass)}//wanted to make it shorter
@@ -49,7 +46,7 @@ export class PrepareStage extends Game {
     this.shipType.type = this.shipTypeList[target.dataset.num]
   }
   public renderShips(): void {
-    [...this.cells].forEach((cell) => {
+    [...this.cellsPlayerOne].forEach((cell) => {
       for (let y = 0; y < this.game.map.length; y++) {
         for (let x = 0; x < this.game.map[y].length; x++) {
           if (this.game.map[y][x] === 2) {
@@ -61,14 +58,14 @@ export class PrepareStage extends Game {
   }
   public placeShip(e: Event): void {
     const target = e.target as HTMLElement
-    const { x, y } = { x: target.dataset[1], y: target.dataset[0] }
+    const { x, y } = { x: target.dataset.cord[1], y: target.dataset.cord[0] }
     const cords = y.toString() + x.toString()
     if (this.game.checkForShip(x, y)) {
       console.log(`exists`, this.game.existingShips)
     } else if (this.game.checkForBarriers(cords, this.shipType)) {
       console.log('cant place it here')
     } else {
-      const ship = this.game.createShip(Number.parseFloat(x), Number.parseFloat(y), this.shipType)
+      const ship = this.game.createShip(Number.parseFloat(y), Number.parseFloat(x), this.shipType)
       this.game.appendShip(ship)
     }
   }
@@ -90,7 +87,7 @@ export class PrepareStage extends Game {
     if (this.shipsCount.reduce((a: number, b: number) => a + b, 0) >= 10) {
       const currentShip = document.querySelector('.currentShip') as HTMLElement
       currentShip.style.display = 'none'
-      this.cells.forEach((cell) => {
+      this.cellsPlayerOne.forEach((cell) => {
         cell.removeEventListener('click', this.placeShip)
       })
     }

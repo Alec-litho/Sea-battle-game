@@ -9,22 +9,27 @@ export class GameLogic implements GameLogicInterface {
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   ]
-  public ShipClass = Ship;
+  public ShipClass: typeof Ship;
+  constructor() {
+    this.ShipClass = Ship
+  }
 
   public appendShip(ship: IShip): void {
     const shipCords = ship.allShipCords
+    //find out if there is a way to not iterate through whole map to place a ship
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
         if (shipCords.some((cord) => +cord[0] === y) && shipCords.some((cord) => +cord[1] === x)) {
-          this.map[y][x] = 2
+          this.map[y][x] = 2        
         }
       }
     }
+    //-------------------------------------------------------------------
   }
   public attackShip(y: number, x: number): boolean {
     if (this.map[y][x] === 2) {
@@ -101,8 +106,8 @@ export class GameLogic implements GameLogicInterface {
     })
     this.existingShips = this.existingShips.splice(shipIndx, 1)
   }
-  public createShip(x: number, y: number, ship: ShipType) {
-    const createdShip = new this.ShipClass(x, y, ship)
+  public createShip(y: number, x: number, ship: ShipType) {
+    const createdShip = new this.ShipClass(y,x, ship)
     this.existingShips.push(createdShip)
     return createdShip
   }

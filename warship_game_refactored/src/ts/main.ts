@@ -39,8 +39,8 @@ function handleConnection(type:string, room:HTMLInputElement, roomVal:string) {
 
 
 function main(socket: ReturnType<typeof io>, room: string, socketId: string, turn:boolean) {
-  console.log(socketId)
-  new PrepareStage(socket, room, new GameLogic())
+  console.log(socketId);
+  (<any>window).Game = new PrepareStage(socket, room, new GameLogic())
   socket.on('playerFinishedPreparing', () => {
     new GameplayStage(socket, room, new GameLogic(), turn)
   })

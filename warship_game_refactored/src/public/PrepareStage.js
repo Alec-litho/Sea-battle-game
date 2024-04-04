@@ -1,9 +1,8 @@
 import { Game } from './Game.js';
 export class PrepareStage extends Game {
-    constructor(socket, room, game) {
+    constructor(socket, room, gameLogic) {
         super(socket, room);
         this.board = document.querySelector('.board');
-        this.cells = document.querySelectorAll('.cell');
         this.shipsHTML = document.querySelectorAll('.shipToPut');
         this.finishBTN = document.querySelector('.btn');
         this.shipsCount = [0, 0, 0, 0];
@@ -12,14 +11,11 @@ export class PrepareStage extends Game {
             type: this.shipTypeList[0],
             direction: 'horizontal'
         };
-        this.game = game;
-        this.render = setInterval(() => this.renderShips, 300);
-        this.finishBTN.addEventListener("click", this.finishPrepareStage);
+        this.game = gameLogic;
+        this.render = setInterval(() => this.renderShips(), 300);
+        this.finishBTN.addEventListener("click", () => this.finishPrepareStage());
         this.removeStyles();
-        this.board.addEventListener('click', (e) => {
-            const target = e.target;
-            console.log(target, target.dataset);
-        });
+        this.board.addEventListener('click', (e) => this.placeShip(e));
     }
     removeStyles() {
         function qselect(HTMLclass) { return document.querySelector(HTMLclass); }
@@ -39,7 +35,7 @@ export class PrepareStage extends Game {
         this.shipType.type = this.shipTypeList[target.dataset.num];
     }
     renderShips() {
-        [...this.cells].forEach((cell) => {
+        [...this.cellsPlayerOne].forEach((cell) => {
             for (let y = 0; y < this.game.map.length; y++) {
                 for (let x = 0; x < this.game.map[y].length; x++) {
                     if (this.game.map[y][x] === 2) {
@@ -51,7 +47,7 @@ export class PrepareStage extends Game {
     }
     placeShip(e) {
         const target = e.target;
-        const { x, y } = { x: target.dataset[1], y: target.dataset[0] };
+        const { x, y } = { x: target.dataset.cord[1], y: target.dataset.cord[0] };
         const cords = y.toString() + x.toString();
         if (this.game.checkForShip(x, y)) {
             console.log(`exists`, this.game.existingShips);
@@ -60,7 +56,7 @@ export class PrepareStage extends Game {
             console.log('cant place it here');
         }
         else {
-            const ship = this.game.createShip(Number.parseFloat(x), Number.parseFloat(y), this.shipType);
+            const ship = this.game.createShip(Number.parseFloat(y), Number.parseFloat(x), this.shipType);
             this.game.appendShip(ship);
         }
     }
@@ -82,7 +78,7 @@ export class PrepareStage extends Game {
         if (this.shipsCount.reduce((a, b) => a + b, 0) >= 10) {
             const currentShip = document.querySelector('.currentShip');
             currentShip.style.display = 'none';
-            this.cells.forEach((cell) => {
+            this.cellsPlayerOne.forEach((cell) => {
                 cell.removeEventListener('click', this.placeShip);
             });
         }

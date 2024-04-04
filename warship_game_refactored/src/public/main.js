@@ -1,7 +1,6 @@
 import { PrepareStage } from './PrepareStage.js';
 import { GameplayStage } from './GameplayStage.js';
 import { GameLogic } from './GameLogic.js';
-
 document.querySelector('.newGame').addEventListener('click', createNewGame);
 document.querySelector('.join_room').addEventListener('click', joinGame);
 function createNewGame() {
@@ -36,7 +35,7 @@ function handleConnection(type, room, roomVal) {
 }
 function main(socket, room, socketId, turn) {
     console.log(socketId);
-    new PrepareStage(socket, room, new GameLogic());
+    window.Game = new PrepareStage(socket, room, new GameLogic());
     socket.on('playerFinishedPreparing', () => {
         new GameplayStage(socket, room, new GameLogic(), turn);
     });
