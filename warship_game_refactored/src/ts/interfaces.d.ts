@@ -14,7 +14,7 @@ interface ShipType {
   direction: string
 }
  
-interface GameLogicInterface {
+interface GameLogicInterface { 
   existingShips: IShip[]
   map: number[][]
   appendShip(ship: IShip): void
@@ -24,4 +24,7 @@ interface GameLogicInterface {
   removeShip(shipId: number): void
   createShip(y: number, x: number, ship: ShipType): IShip
   checkForShip(x: string, y: string): boolean
+  clearShipArea(cells:HTMLElement[]):void
+  paintShipArea(cords: string, shipType: ShipType, cells:HTMLElement[]):void
+  defineStartAndEndCords(cords: string, shipType: ShipType):{startCord:string, endCord:string, areaCords:string[]}
 }

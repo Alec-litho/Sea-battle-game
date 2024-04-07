@@ -3,36 +3,66 @@ export class PrepareStage extends Game {
     constructor(socket, room, gameLogic) {
         super(socket, room);
         this.board = document.querySelector('.board');
+        this.direction = "horizontal";
         this.shipsHTML = document.querySelectorAll('.shipToPut');
+        this.turnAround = document.querySelector(".turnAround");
         this.finishBTN = document.querySelector('.btn');
         this.shipsCount = [0, 0, 0, 0];
         this.shipTypeList = [[2], [2, 2], [2, 2, 2], [2, 2, 2, 2]];
+        this.isDragging = false;
         this.shipType = {
             type: this.shipTypeList[0],
-            direction: 'horizontal'
+            direction: this.direction
         };
         this.game = gameLogic;
         this.render = setInterval(() => this.renderShips(), 300);
         this.finishBTN.addEventListener("click", () => this.finishPrepareStage());
         this.removeStyles();
-        this.board.addEventListener('click', (e) => this.placeShip(e));
+        this.turnAround.addEventListener("click", () => this.changeDirectionHTML());
+        window.onmouseup = (e) => console.log(e, e.target);
+        this.board.addEventListener("dragover", (e) => {
+            const el = e.target;
+            if (this.isDragging && (el.classList[0] === "cell")) {
+                this.currentCell = el;
+                this.game.paintShipArea(el.dataset.cord, this.shipType, this.cellsPlayerOne);
+            }
+        });
+        this.cellsPlayerOne.forEach(cell => {
+            cell.addEventListener("dragleave", () => {
+                this.game.clearShipArea(this.cellsPlayerOne);
+            });
+        });
+        this.shipsHTML.forEach(ship => {
+            ship.addEventListener("dragstart", (e) => {
+                this.isDragging = true;
+                this.chooseShip(e);
+            });
+            ship.addEventListener("dragend", () => {
+                this.isDragging = false;
+                this.placeShip();
+            });
+        });
     }
     removeStyles() {
         function qselect(HTMLclass) { return document.querySelector(HTMLclass); }
-        const [game, ships, startGame] = [qselect('.game'), qselect('.ships'), qselect('.startGame')];
+        const [game, gameContainer, startGame] = [qselect('.game'), qselect('.gameContainer'), qselect('.startGame')];
         game.style.display = 'flex';
-        ships.style.display = 'grid';
+        gameContainer.style.display = 'flex';
         startGame.style.display = 'none';
     }
     clearEvents() {
-        this.board.removeEventListener('click', this.placeShip);
-        this.shipsHTML.forEach((ship) => {
-            ship.removeEventListener('click', this.chooseShip);
+        this.shipsHTML.forEach(() => {
         });
     }
     chooseShip(e) {
         const target = e.target;
-        this.shipType.type = this.shipTypeList[target.dataset.num];
+        const num = +target.dataset.num;
+        console.log(num, num - 1, this.shipTypeList);
+        this.shipType.type = this.shipTypeList[num - 1];
+        const shipsToPut = target.parentNode.childNodes;
+        shipsToPut.forEach(el => { if (el.className === "shipToPut")
+            el.style.border = "3px solid rgb(42, 113, 146)"; });
+        target.style.border = "3px solid rgb(122, 208, 248)";
     }
     renderShips() {
         [...this.cellsPlayerOne].forEach((cell) => {
@@ -45,8 +75,8 @@ export class PrepareStage extends Game {
             }
         });
     }
-    placeShip(e) {
-        const target = e.target;
+    placeShip() {
+        const target = this.currentCell;
         const { x, y } = { x: target.dataset.cord[1], y: target.dataset.cord[0] };
         const cords = y.toString() + x.toString();
         if (this.game.checkForShip(x, y)) {
@@ -58,6 +88,7 @@ export class PrepareStage extends Game {
         else {
             const ship = this.game.createShip(Number.parseFloat(y), Number.parseFloat(x), this.shipType);
             this.game.appendShip(ship);
+            this.incrementShipCount();
         }
     }
     incrementShipCount() {
@@ -75,32 +106,43 @@ export class PrepareStage extends Game {
                 this.shipsCount[3]++;
                 break;
         }
-        if (this.shipsCount.reduce((a, b) => a + b, 0) >= 10) {
-            const currentShip = document.querySelector('.currentShip');
-            currentShip.style.display = 'none';
-            this.cellsPlayerOne.forEach((cell) => {
-                cell.removeEventListener('click', this.placeShip);
-            });
+        if (this.shipsCount.reduce((a, b) => a + b, 0) !== 10) {
+            this.updateShipsDOM(this.shipsCount);
         }
-        this.updateShipsDOM(this.shipsCount);
     }
     setCurrentShip() {
-        const id = this.shipType.type.length == 1 ? 'one' : this.shipType[0].length == 2 ? 'two' : this.shipType[0].length == 3 ? 'three' : 'four';
-        document.querySelector('.currentShip').setAttribute('id', `${id}`);
+        const id = this.shipType.type.length == 1 ? '1' : this.shipType.type.length == 2 ? '2' : this.shipType.type.length == 3 ? '3' : '4';
+        const shipsToPut = document.querySelectorAll('.shipToPut');
+        [...shipsToPut].filter(shipHTML => shipHTML.dataset.num === id)[0].style.border = "3px solid rgb(122, 208, 248)";
     }
     updateShipsDOM(arr) {
         arr.forEach((ship, indx) => {
             if (ship === arr.length - indx) {
                 const htmlEl = [...this.shipsHTML].filter((el) => el.getAttribute('id') === `${indx + 1}`)[0];
+                console.log(ship, htmlEl);
                 htmlEl.classList.add('hide');
-                this.shipTypeList.splice(indx, 1);
+                this.shipTypeList.splice(indx, 1, null);
                 if (this.shipTypeList.length === 1)
                     this.shipType.type = this.shipTypeList[0];
-                else
-                    this.shipType.type = this.shipTypeList[indx + 1] === undefined ? this.shipTypeList[indx - 1] : this.shipTypeList[indx + 1];
+                else {
+                    this.shipTypeList.forEach((ship, indx, shipList) => {
+                        if (shipList[indx + 1] === undefined)
+                            this.shipType.type = shipList[0];
+                        if (ship !== null)
+                            this.shipType.type = ship;
+                    });
+                }
             }
         });
         this.setCurrentShip();
+    }
+    changeDirectionHTML() {
+        const oldDir = this.direction;
+        this.direction = this.direction === "horizontal" ? "vertical" : "horizontal";
+        this.shipType.direction = this.direction;
+        const ships = document.querySelector(`.ships`);
+        ships.classList.remove(`ships`, `${oldDir}`);
+        ships.classList.add(`ships`, `${this.direction}`);
     }
     finishPrepareStage() {
         if (this.game.existingShips.length >= 10) {
