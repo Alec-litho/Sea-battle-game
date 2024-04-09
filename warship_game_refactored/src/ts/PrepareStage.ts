@@ -14,7 +14,7 @@ export class PrepareStage extends Game {
   shipTypeList: number[][] = [[2], [2, 2], [2, 2, 2], [2, 2, 2, 2]];
   render: ReturnType<typeof setInterval>;
   isDragging:boolean = false
-  currentCell: HTMLElement
+  currentElement: HTMLElement | undefined
   constructor(socket: any/*ReturnType<typeof io>*/ , room: string, gameLogic: GameLogicInterface) {
     super(socket, room)
     this.shipType = {
@@ -26,14 +26,18 @@ export class PrepareStage extends Game {
     this.finishBTN.addEventListener("click", () => this.finishPrepareStage())
     this.removeStyles()
     this.turnAround.addEventListener("click", () => this.changeDirectionHTML())
-    window.onmouseup = (e) => console.log(e,e.target)
+
     this.board.addEventListener("dragover",(e) => {
       const el = e.target as HTMLElement
+      this.currentElement = el
       if(this.isDragging && (el.classList[0]==="cell")) {
-        this.currentCell = el
         this.game.paintShipArea(el.dataset.cord, this.shipType, this.cellsPlayerOne)
       }
     })
+    /*
+    I need to set this.currentElement = undefined if its out of board
+
+    */
     this.cellsPlayerOne.forEach(cell => {
       cell.addEventListener("dragleave",() => {
         this.game.clearShipArea(this.cellsPlayerOne)
@@ -82,7 +86,8 @@ export class PrepareStage extends Game {
     })
   }
   public placeShip(): void {
-    const target = this.currentCell as HTMLElement
+    if(!this.currentElement) return
+    const target = this.currentElement as HTMLElement
     const { x, y } = { x: target.dataset.cord[1], y: target.dataset.cord[0] }
     const cords = y.toString() + x.toString()
     if (this.game.checkForShip(x, y)) {

@@ -19,11 +19,10 @@ export class PrepareStage extends Game {
         this.finishBTN.addEventListener("click", () => this.finishPrepareStage());
         this.removeStyles();
         this.turnAround.addEventListener("click", () => this.changeDirectionHTML());
-        window.onmouseup = (e) => console.log(e, e.target);
         this.board.addEventListener("dragover", (e) => {
             const el = e.target;
+            this.currentElement = el;
             if (this.isDragging && (el.classList[0] === "cell")) {
-                this.currentCell = el;
                 this.game.paintShipArea(el.dataset.cord, this.shipType, this.cellsPlayerOne);
             }
         });
@@ -76,7 +75,9 @@ export class PrepareStage extends Game {
         });
     }
     placeShip() {
-        const target = this.currentCell;
+        if (!this.currentElement)
+            return;
+        const target = this.currentElement;
         const { x, y } = { x: target.dataset.cord[1], y: target.dataset.cord[0] };
         const cords = y.toString() + x.toString();
         if (this.game.checkForShip(x, y)) {

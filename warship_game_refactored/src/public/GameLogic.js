@@ -65,7 +65,11 @@ export class GameLogic {
     paintShipArea(cords, shipType, cells) {
         const { startCord, endCord } = this.defineStartAndEndCords(cords, shipType);
         for (let y = +startCord[0]; y <= +endCord[0]; y++) {
+            if (Math.sign(y) === -1)
+                continue;
             for (let x = +startCord[1]; x <= +endCord[1]; x++) {
+                if (Math.sign(x) === -1)
+                    continue;
                 const indx = y === 0 ? +`${x}` : +`${y}${x}`;
                 if (this.map[y][x] === 2) {
                     cells[indx].className = "cell barrier";
@@ -84,7 +88,11 @@ export class GameLogic {
     checkForBarriers(cords, shipType) {
         const { startCord, endCord } = this.defineStartAndEndCords(cords, shipType);
         for (let y = +startCord[0]; y <= +endCord[0]; y++) {
+            if (Math.sign(+startCord[0]) === -1)
+                continue;
             for (let x = +startCord[1]; x <= +endCord[1]; x++) {
+                if (Math.sign(+startCord[1]) === -1)
+                    continue;
                 if (this.map[y][x] === 2) {
                     console.log('barrier');
                     return true;
@@ -95,23 +103,34 @@ export class GameLogic {
     defineStartAndEndCords(cords, shipType) {
         const shipTypeLen = shipType.type.length;
         let currCord = +cords[0];
-        let startCord;
-        if (+cords[0] - 11 === 0 || +cords[1] - 11 === 0)
-            startCord = '00';
-        else {
-            let y = `${+cords[0] * 10 - 10}`;
-            let x = `${+cords[1] - 1}`;
-            y.length === 3 ? (y = y.slice(0, 2)) : (y = y.slice(0, 1));
-            while (Math.sign(+x) === -1)
-                x = `${parseFloat(x) + 1}`;
-            while (Math.sign(+y) === -1)
-                y = `${parseFloat(y) + 1}`;
-            startCord = y.toString() + x;
+        const startCord = [];
+        const endCord = [];
+        let y = `${+cords[0] * 10 - 10}`;
+        const x = `${+cords[1] - 1}`;
+        y.length === 3 ? (y = y.slice(0, 2)) : (y = y.slice(0, 1));
+        startCord.push(y.toString(), x);
+        currCord === 9 ? (currCord = currCord - 1) : currCord;
+        if (shipType.direction === 'horizontal') {
+            const sumY = ((+startCord[0]) + 2) * 10;
+            const sumX = (+startCord[1]) + shipTypeLen + 1;
+            let sum = sumY + sumX;
+            if (sum.toString().length === 3)
+                sum = sum - 10;
+            if (sumX === 10)
+                sum -= 1;
+            endCord.push(`${sum.toString()[0]}`, `${sum.toString()[1]}`);
         }
-        currCord.toString() === '9' ? (currCord = currCord - 1) : currCord;
-        const endCord = shipType.direction === 'horizontal' ? `${((+startCord[0]) + 2) * 10 + ((+startCord[1]) + shipTypeLen + 1)}` : `${(+startCord[1]) + 2 + ((+startCord[0]) + shipTypeLen + 1) * 10}`;
-        const areaCords = [];
-        return { startCord, endCord, areaCords };
+        else {
+            const sumY = (+startCord[1]) + 2;
+            const sumX = ((+startCord[0]) + shipTypeLen + 1) * 10;
+            let sum = sumY + sumX;
+            if (sum.toString().length === 3)
+                sum = sum - 10;
+            if (sumY === 10)
+                sum -= 1;
+            endCord.push(`${sum.toString()[0]}`, `${sum.toString()[1]}`);
+        }
+        return { startCord, endCord };
     }
     removeShip(shipId) {
         let shipIndx;

@@ -67,9 +67,11 @@ export class GameLogic implements GameLogicInterface {
   public paintShipArea(cords: string, shipType: ShipType, cells:HTMLElement[]) {
     const {startCord, endCord} = this.defineStartAndEndCords(cords, shipType)
     // const sliceOfCells = cells.slice(+areaCords[0],+areaCords[areaCords.length])
-    
+    // console.log(startCord, endCord)
     for (let y = +startCord[0]; y <= +endCord[0]; y++) {
+      if(Math.sign(y)===-1) continue
       for (let x = +startCord[1]; x <= +endCord[1]; x++) {
+        if(Math.sign(x)===-1) continue
         const indx = y===0? +`${x}` : +`${y}${x}`
         if (this.map[y][x] === 2) {
           cells[indx].className = "cell barrier"
@@ -86,8 +88,11 @@ export class GameLogic implements GameLogicInterface {
   }
   public checkForBarriers(cords: string, shipType: ShipType): boolean {
     const {startCord, endCord} = this.defineStartAndEndCords(cords, shipType)
+
     for (let y = +startCord[0]; y <= +endCord[0]; y++) {
+      if(Math.sign(+startCord[0])===-1) continue
       for (let x = +startCord[1]; x <= +endCord[1]; x++) {
+        if(Math.sign(+startCord[1])===-1) continue
         if (this.map[y][x] === 2) {
           console.log('barrier')
           return true
@@ -95,30 +100,35 @@ export class GameLogic implements GameLogicInterface {
       }
     }
   }
-  public defineStartAndEndCords(cords: string, shipType: ShipType):{startCord:string, endCord:string, areaCords:string[]} {
+  public defineStartAndEndCords(cords: string, shipType: ShipType):{startCord:string[], endCord:string[]} {
     const shipTypeLen = shipType.type.length
     let currCord: number = +cords[0]
-    let startCord: string
+    const startCord: string[] = []
+    const endCord: string[] = []
 
-    if (+cords[0] - 11 === 0 || +cords[1] - 11 === 0) startCord = '00'
-    else {
       let y = `${+cords[0] * 10 - 10}`
-      let x = `${+cords[1] - 1}`
+      const x = `${+cords[1] - 1}`
       y.length === 3 ? (y = y.slice(0, 2)) : (y = y.slice(0, 1))
-      while (Math.sign(+x) === -1) x = `${parseFloat(x) + 1}`
-      while (Math.sign(+y) === -1) y = `${parseFloat(y) + 1}`
-      startCord = y.toString() + x
+      startCord.push(y.toString(), x)
+    
+    currCord === 9 ? (currCord = currCord - 1) : currCord
+    if(shipType.direction === 'horizontal' ) {
+      const sumY = ((+startCord[0])+2)*10
+      const sumX = (+startCord[1])+shipTypeLen+1
+      let sum = sumY + sumX
+      if(sum.toString().length === 3) sum = sum-10;
+      if(sumX===10) sum -= 1
+      endCord.push(`${sum.toString()[0]}`, `${sum.toString()[1]}`);
+    } else {
+      const sumY = (+startCord[1])+2
+      const sumX = ((+startCord[0])+shipTypeLen+1)*10
+      let sum = sumY + sumX
+      if(sum.toString().length === 3) sum = sum-10;
+      if(sumY===10) sum -= 1
+      endCord.push(`${sum.toString()[0]}`, `${sum.toString()[1]}`);
     }
-    currCord.toString() === '9' ? (currCord = currCord - 1) : currCord
-    const endCord =
-      shipType.direction === 'horizontal' ? `${((+startCord[0])+2)*10 + ((+startCord[1])+shipTypeLen+1)}` : `${(+startCord[1])+2 + ((+startCord[0])+shipTypeLen+1)*10}`
-    const areaCords:string[] = []
-      // for (let y = +startCord[0]; y <= +endCord[0]; y++) {
-      //   for (let x = +startCord[1]; x <= +endCord[1]; x++) {
-      //     areaCords.push(`${y}${x}`)
-      //   }
-      // }
-   return {startCord,endCord, areaCords}
+  
+   return {startCord,endCord}
   }
 
   public removeShip(shipId: number) {
@@ -143,3 +153,31 @@ export class GameLogic implements GameLogicInterface {
     //   endCord = firstSlice + secondSlice
     // }
     //------------??--------------
+  //   public defineStartAndEndCords(cords: string, shipType: ShipType):{startCord:string, endCord:string, areaCords:string[]} {
+  //     const shipTypeLen = shipType.type.length
+  //     // let currCord: number = +cords[0]
+  //     let startCord: string = cords
+  //     /*const endCord: string = shipType.direction==="horizontal"? `${+cords[0] + (shipType.type.length-1)}` : `${+cords[1] + (shipType.type.length-1)}`*/
+  //     // if (+cords[0] - 11 === 0 || +cords[1] - 11 === 0) startCord = '00'
+  //     // else {
+  //       const y = `${+cords[0] * 10 - 10}`;
+  //       const x = `${+cords[1] - 1}`;
+  //       // y.length === 3 ? (y = y.slice(0, 2)) : (y = y.slice(0, 1))
+  //       // while (Math.sign(+x) === -1) x = `${parseFloat(x) + 1}`
+  //       // while (Math.sign(+y) === -1) y = `${parseFloat(y) + 1}`
+  //       startCord = `${(+y) + (+x)}`
+  //     // }
+  // console.log(y,x)
+  //     // currCord.toString() === '9' ? (currCord = currCord - 1) : currCord
+  //     if(startCord.length===2) {
+  //       if(startCord[0]==="-") startCord = `-0${Math.abs(+startCord)}`
+  //     } else if(startCord.length===1) {
+  //       startCord = `0${startCord}`
+  //     }
+  
+  //     const endCord =
+  //       shipType.direction === 'horizontal' ? `${((+startCord[0])+2)*10 + ((+startCord[1])+shipTypeLen+1)}` : `${(+startCord[1])+2 + ((+startCord[0])+shipTypeLen+1)*10}`
+  //     const areaCords:string[] = []
+  //     console.log(cords, startCord, endCord)
+  //    return {startCord,endCord, areaCords}
+  //   }
