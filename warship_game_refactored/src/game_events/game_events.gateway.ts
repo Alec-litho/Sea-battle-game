@@ -1,5 +1,5 @@
 import { GameEventsService } from './game_events.service'
-import { SubscribeMessage, WebSocketGateway, OnGatewayInit, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets'
+import { SubscribeMessage, WebSocketGateway, OnGatewayInit, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect, ConnectedSocket, MessageBody} from '@nestjs/websockets'
 import { Socket, Server } from 'socket.io'
 
 @WebSocketGateway({
@@ -44,18 +44,19 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayInit, On
     }
   }
   @SubscribeMessage('finishedPreparing')
-  finishFirstStage(client: Socket, room: string) {
+  finishFirstStage(client: Socket, {room}: {room:string}) {
     this.playersFinished.push('finished')
-    this.playersFinished.length === 2 ? this.server.in(room).emit('playerFinishedPreparing') : null
+    console.log(this.playersFinished,room) 
+    this.playersFinished.length === 2 ? this.server.to(room).emit('playerFinishedPreparing', {message:"hello"}) : null
   }
   @SubscribeMessage('checkForShip')
-  attackShip(client: Socket, x: number, y: number, room: string) {
-    console.log(y, x)
-    client.to(room).emit('getAttacked', { y, x })
+  attackShip(@ConnectedSocket() socket: Socket,@MessageBody() data: {x: number, y: number, room: string}) {
+    console.log(data, data.y, data.x)
+    socket.to(data.room).emit('getAttacked', {y:data.y, x:data.x})
   }
   @SubscribeMessage('gotAttacked_True')
   onGotAttackedTrue(client: Socket, x: number, y: number, room: string) {
-    console.log('attacked')
+    console.log('attacked') 
     client.to(room).emit('attacked', { y, x })
   }
   @SubscribeMessage('gotAttacked_False')

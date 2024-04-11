@@ -15,7 +15,7 @@ export class PrepareStage extends Game {
             direction: this.direction
         };
         this.game = gameLogic;
-        this.render = setInterval(() => this.renderShips(), 300);
+        this.render = setInterval(() => this.renderShips(), 200);
         this.finishBTN.addEventListener("click", () => this.finishPrepareStage());
         this.removeStyles();
         this.turnAround.addEventListener("click", () => this.changeDirectionHTML());
@@ -48,10 +48,6 @@ export class PrepareStage extends Game {
         game.style.display = 'flex';
         gameContainer.style.display = 'flex';
         startGame.style.display = 'none';
-    }
-    clearEvents() {
-        this.shipsHTML.forEach(() => {
-        });
     }
     chooseShip(e) {
         const target = e.target;
@@ -107,11 +103,11 @@ export class PrepareStage extends Game {
                 this.shipsCount[3]++;
                 break;
         }
-        if (this.shipsCount.reduce((a, b) => a + b, 0) !== 10) {
-            this.updateShipsDOM(this.shipsCount);
-        }
+        this.updateShipsDOM(this.shipsCount);
     }
     setCurrentShip() {
+        if (this.shipType.type === undefined)
+            return;
         const id = this.shipType.type.length == 1 ? '1' : this.shipType.type.length == 2 ? '2' : this.shipType.type.length == 3 ? '3' : '4';
         const shipsToPut = document.querySelectorAll('.shipToPut');
         [...shipsToPut].filter(shipHTML => shipHTML.dataset.num === id)[0].style.border = "3px solid rgb(122, 208, 248)";
@@ -123,16 +119,7 @@ export class PrepareStage extends Game {
                 console.log(ship, htmlEl);
                 htmlEl.classList.add('hide');
                 this.shipTypeList.splice(indx, 1, null);
-                if (this.shipTypeList.length === 1)
-                    this.shipType.type = this.shipTypeList[0];
-                else {
-                    this.shipTypeList.forEach((ship, indx, shipList) => {
-                        if (shipList[indx + 1] === undefined)
-                            this.shipType.type = shipList[0];
-                        if (ship !== null)
-                            this.shipType.type = ship;
-                    });
-                }
+                this.shipType.type = this.shipTypeList.filter((ship) => ship !== null)[0];
             }
         });
         this.setCurrentShip();
@@ -146,13 +133,10 @@ export class PrepareStage extends Game {
         ships.classList.add(`ships`, `${this.direction}`);
     }
     finishPrepareStage() {
-        if (this.game.existingShips.length >= 10) {
-            setTimeout(() => {
-                clearInterval(this.render);
-                this.clearEvents();
-                this.socket.emit('finishedPreparing', { room: this.room });
-            }, 500);
-            document.querySelector('.btn').style.display = 'none';
+        if (this.game.existingShips) {
+            clearInterval(this.render);
+            this.socket.emit('finishedPreparing', { room: this.room });
+            document.querySelector('.leftCont').style.display = 'none';
         }
         else {
             console.log('some ships are not used');

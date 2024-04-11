@@ -22,7 +22,7 @@ export class PrepareStage extends Game {
       direction: this.direction
     }
     this.game = gameLogic
-    this.render = setInterval(() => this.renderShips(), 300)
+    this.render = setInterval(() => this.renderShips(), 200)
     this.finishBTN.addEventListener("click", () => this.finishPrepareStage())
     this.removeStyles()
     this.turnAround.addEventListener("click", () => this.changeDirectionHTML())
@@ -60,10 +60,6 @@ export class PrepareStage extends Game {
     game.style.display = 'flex'
     gameContainer.style.display = 'flex'
     startGame.style.display = 'none'
-  }
-  public clearEvents(): void {
-    this.shipsHTML.forEach(() => {
-    })
   }
   public chooseShip(e: Event): void {
     const target = e.target as HTMLElement
@@ -115,13 +111,11 @@ export class PrepareStage extends Game {
         this.shipsCount[3]++
         break
     }
-    if (this.shipsCount.reduce((a: number, b: number) => a + b, 0) !== 10) {
-      this.updateShipsDOM(this.shipsCount)
-    }
+    this.updateShipsDOM(this.shipsCount)
 
   }
   public setCurrentShip() {
-    //fix id setting//----------------------------------------------------------------------------------------
+    if(this.shipType.type === undefined) return;
     const id = this.shipType.type.length == 1 ? '1' : this.shipType.type.length == 2 ? '2' : this.shipType.type.length == 3 ? '3' : '4'
     const shipsToPut = document.querySelectorAll('.shipToPut') as NodeListOf<HTMLElement>
     [...shipsToPut].filter(shipHTML => shipHTML.dataset.num === id)[0].style.border = "3px solid rgb(122, 208, 248)"
@@ -135,14 +129,7 @@ export class PrepareStage extends Game {
         console.log(ship, htmlEl)
         htmlEl.classList.add('hide')
         this.shipTypeList.splice(indx, 1, null) //remove a ship type that we have run out of
-        if (this.shipTypeList.length === 1) this.shipType.type = this.shipTypeList[0]
-        else {
-          this.shipTypeList.forEach((ship:number[]|null,indx:number, shipList) => {
-            if(shipList[indx+1]===undefined) this.shipType.type = shipList[0];
-            if(ship!==null) this.shipType.type = ship
-          })
-        }
-        // else this.shipType.type = this.shipTypeList[indx + 1] === undefined ? this.shipTypeList[0] : this.shipTypeList[indx + 1]
+        this.shipType.type = this.shipTypeList.filter((ship:number[]) => ship!==null)[0]
       }
     })
     this.setCurrentShip()
@@ -157,13 +144,10 @@ export class PrepareStage extends Game {
   }
 
   public finishPrepareStage() {
-    if (this.game.existingShips.length >= 10) {
-      setTimeout(() => {
-        clearInterval(this.render)
-        this.clearEvents()
-        this.socket.emit('finishedPreparing', { room: this.room })
-      }, 500)
-      document.querySelector<HTMLElement>('.btn').style.display = 'none'
+    if (this.game.existingShips/*this.game.existingShips.length >= 10*/) {
+      clearInterval(this.render)
+      this.socket.emit('finishedPreparing', { room: this.room })
+      document.querySelector<HTMLElement>('.leftCont').style.display = 'none'
     } else {
       console.log('some ships are not used')
     }

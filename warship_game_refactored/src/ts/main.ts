@@ -33,7 +33,7 @@ function handleConnection(type:string, room:HTMLInputElement, roomVal:string) {
   }
   socket.on(type==="join"? 'getResp' : 'getId', (socketId) => {
     socket.emit('setId', { socketId, roomVal })
-    socket.on('response', () => main(socket, roomVal, socketId, false))
+    socket.on('response', () => main(socket, roomVal, socketId, type==="join"? false : true))
   })
 }
 
@@ -42,6 +42,7 @@ function main(socket: ReturnType<typeof io>, room: string, socketId: string, tur
   console.log(socketId);
   (<any>window).Game = new PrepareStage(socket, room, new GameLogic())
   socket.on('playerFinishedPreparing', () => {
-    new GameplayStage(socket, room, new GameLogic(), turn)
+    console.log('gameplay stage');
+    (<any>window).Game = new GameplayStage(socket, room, new GameLogic(), turn)
   })
 }

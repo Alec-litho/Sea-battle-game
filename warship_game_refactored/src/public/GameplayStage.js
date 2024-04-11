@@ -2,23 +2,50 @@ import { Game } from './Game.js';
 export class GameplayStage extends Game {
     constructor(socket, room, game, playerTurn) {
         super(socket, room);
+        this.board = document.querySelector(".boardPlayerTwo");
         this.game = game;
         this.playerTurn = playerTurn;
+        this.board.style.display = "grid";
+        this.board.addEventListener("click", (e) => this.attack(e));
+        this.cellsPlayerTwo.forEach(cell => cell.addEventListener("mouseover", (e) => {
+            const el = e.target;
+            const rlEl = e.relatedTarget;
+            if (el.classList[0] === "cell" && rlEl.classList[0] === "cell") {
+                if (el.className !== "cell attackedShip")
+                    el.className = "cell hover";
+                rlEl.className = rlEl.className === "cell attackedShip" ? "cell attackedShip" : "cell";
+            }
+        }));
     }
     attack(e) {
-        if (this.playerTurn) {
-            const cell = e.target;
-            this.socket.emit('checkForShip', { x: cell.dataset.cord[1], y: cell.dataset.cord[0], room: this.room });
+        const el = e.target;
+        console.log(el);
+        if (this.playerTurn && el.classList[0] === "cell") {
+            this.socket.emit('checkForShip', { x: el.dataset.cord[1], y: el.dataset.cord[0], room: this.room });
             this.socket.on('missed', () => {
-                cell.classList.add('attacked');
+                el.classList.add('attacked');
                 this.changeTurn();
             });
             this.socket.on('attacked', () => {
-                cell.classList.add('attackedShip');
+                el.classList.add('attackedShip');
                 this.socket.off('attacked');
                 this.socket.off('missed');
             });
         }
+    }
+    getAttacked() {
+        this.socket.on('getAttacked', (cords) => {
+            const { y, x } = cords;
+            const result = this.game.attackShip(+y, +x);
+            this.socket.off("missed");
+            this.socket.off("attacked");
+            if (result === true) {
+                this.socket.emit("gotAttacked_True", { y, x });
+            }
+            else {
+                this.socket.emit("gotMissed_False", { y, x });
+            }
+        });
     }
     changeTurn() {
         this.socket.off('missed');
@@ -26,6 +53,13 @@ export class GameplayStage extends Game {
         this.socket.off('getAttacked');
         this.clearCurrentAttack(this.cellsPlayerTwo);
         this.socket.emit('changeTurn', { socketId: this.socket.id });
+        if (this.playerTurn === false) {
+            this.getAttacked();
+            this.board.className = "boardPlayerTwo turn";
+        }
+        else {
+            this.board.className = "boardPlayerTwo";
+        }
     }
     clearCurrentAttack(enemyCells) {
         enemyCells.forEach((enemyCell) => {
