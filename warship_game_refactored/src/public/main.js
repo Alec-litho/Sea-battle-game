@@ -1,23 +1,33 @@
 import { PrepareStage } from './PrepareStage.js';
 import { GameplayStage } from './GameplayStage.js';
 import { GameLogic } from './GameLogic.js';
-document.querySelector('.newGame').addEventListener('click', createNewGame);
+document.querySelector('.newGame').addEventListener('click', keyGenerator);
 document.querySelector('.join_room').addEventListener('click', joinGame);
-function createNewGame() {
-    const room = document.querySelector('.createRoomVal');
-    const roomVal = room.value;
-    if (roomVal !== '')
-        handleConnection("create", room, roomVal);
+const key = document.querySelector('.key');
+function keyGenerator() {
+    const chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
+    const rand = (min = 0, max = 1000) => Math.floor(Math.random() * (max - min) + min);
+    const randChar = (length = 2) => {
+        const randchars = [];
+        for (let i = 0; i < length; i++) {
+            randchars.push(chars[rand(0, chars.length)]);
+        }
+        return randchars.join('');
+    };
+    const keygen = (prefix = randChar(), sufix = randChar()) => `${prefix}${randChar()}${sufix}`;
+    const keyString = keygen();
+    key.innerText = keyString;
+    handleConnection('create', keyString);
 }
 function joinGame() {
     const room = document.querySelector('.find_room');
     const roomVal = room.value;
     if (roomVal !== '')
-        handleConnection("join", room, roomVal);
+        handleConnection('join', roomVal, room);
 }
-function handleConnection(type, room, roomVal) {
+function handleConnection(type, roomVal, room) {
     const socket = io('http://localhost:3000');
-    if (type === "join") {
+    if (type === 'join') {
         socket.emit('checkIfExists', roomVal);
         socket.on('error', (message) => {
             const htmlErrMessage = document.querySelector('.errorMessage');
@@ -26,11 +36,11 @@ function handleConnection(type, room, roomVal) {
         });
     }
     else {
-        socket.emit("createRoom", roomVal);
+        socket.emit('createRoom', roomVal);
     }
-    socket.on(type === "join" ? 'getResp' : 'getId', (socketId) => {
+    socket.on(type === 'join' ? 'getResp' : 'getId', (socketId) => {
         socket.emit('setId', { socketId, roomVal });
-        socket.on('response', () => main(socket, roomVal, socketId, type === "join" ? false : true));
+        socket.on('response', () => main(socket, roomVal, socketId, type === 'join' ? false : true));
     });
 }
 function main(socket, room, socketId, turn) {

@@ -4,21 +4,14 @@ import { io } from 'socket.io-client'
 export class GameplayStage extends Game {
   public playerTurn: boolean
   game: GameLogicInterface//ДЛЯ ЧЕГО ОН НУЖЕН??)) 
-  board:HTMLElement = document.querySelector(".boardPlayerTwo");
+  board:HTMLElement = document.querySelector(".boardPlayerTwo.none");
   constructor(socket: ReturnType<typeof io>, room: string, game: GameLogicInterface, playerTurn: boolean) {
     super(socket, room) 
     this.game = game 
     this.playerTurn = playerTurn
-    this.board.style.display = "grid"
+    this.board.className = this.playerTurn? "boardPlayerTwo" : "boardPlayerTwo turn"
     this.board.addEventListener("click", (e) => this.attack(e));
-    this.cellsPlayerTwo.forEach(cell => cell.addEventListener("mouseover", (e) => {
-      const el = e.target as HTMLElement;
-      const rlEl = e.relatedTarget as HTMLElement;
-      if( el.classList[0]==="cell" &&  rlEl.classList[0]==="cell") {
-        if(el.className !== "cell attackedShip") el.className = "cell hover" ;
-        rlEl.className = rlEl.className === "cell attackedShip"? "cell attackedShip" : "cell"
-      }
-    }))
+    if(!this.playerTurn) this.getAttacked()
   } 
 
   public attack(e: Event) {
@@ -44,6 +37,7 @@ export class GameplayStage extends Game {
       const result = this.game.attackShip(+y,+x)
       this.socket.off("missed")
       this.socket.off("attacked")
+      console.log(result)
       if(result === true) {
         this.socket.emit("gotAttacked_True", {y,x}) 
       }else {

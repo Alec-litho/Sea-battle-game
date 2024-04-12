@@ -2,20 +2,13 @@ import { Game } from './Game.js';
 export class GameplayStage extends Game {
     constructor(socket, room, game, playerTurn) {
         super(socket, room);
-        this.board = document.querySelector(".boardPlayerTwo");
+        this.board = document.querySelector(".boardPlayerTwo.none");
         this.game = game;
         this.playerTurn = playerTurn;
-        this.board.style.display = "grid";
+        this.board.className = this.playerTurn ? "boardPlayerTwo" : "boardPlayerTwo turn";
         this.board.addEventListener("click", (e) => this.attack(e));
-        this.cellsPlayerTwo.forEach(cell => cell.addEventListener("mouseover", (e) => {
-            const el = e.target;
-            const rlEl = e.relatedTarget;
-            if (el.classList[0] === "cell" && rlEl.classList[0] === "cell") {
-                if (el.className !== "cell attackedShip")
-                    el.className = "cell hover";
-                rlEl.className = rlEl.className === "cell attackedShip" ? "cell attackedShip" : "cell";
-            }
-        }));
+        if (!this.playerTurn)
+            this.getAttacked();
     }
     attack(e) {
         const el = e.target;
@@ -39,6 +32,7 @@ export class GameplayStage extends Game {
             const result = this.game.attackShip(+y, +x);
             this.socket.off("missed");
             this.socket.off("attacked");
+            console.log(result);
             if (result === true) {
                 this.socket.emit("gotAttacked_True", { y, x });
             }
