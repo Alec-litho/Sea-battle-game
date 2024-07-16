@@ -15,7 +15,7 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayInit, On
     { turn: false, id: '' }
   ]
   private playersFinished = []
-  @WebSocketServer() server: Server
+  @WebSocketServer() server: Server 
 
   @SubscribeMessage('sendId')
   sendId(client: Socket, room: string): void {
@@ -32,8 +32,8 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayInit, On
   @SubscribeMessage('checkIfExists')
   checkIfExists(client: Socket, room: string) {
     const id = client.id
-    console.log(this.server.sockets.adapter.rooms,this.server.sockets.adapter.rooms.get(room))
     if (this.server.sockets.adapter.rooms.get(room)) {
+      console.log(this.server.sockets.adapter.rooms.get(room))
       client.join(room)
       client.emit('getResp', { id })
       const exist = true
@@ -44,36 +44,36 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayInit, On
     }
   }
   @SubscribeMessage('finishedPreparing')
-  finishFirstStage(client: Socket, {room}: {room:string}) {
+  finishFirstStage(socket: Socket, {room}: {room:string}) {
     this.playersFinished.push('finished')
-    console.log(this.playersFinished,room) 
+    console.log(socket.rooms, "-->", this.playersFinished) 
     this.playersFinished.length === 2 ? this.server.to(room).emit('playerFinishedPreparing', {message:"hello"}) : null
   }
   @SubscribeMessage('checkForShip')
   attackShip(@ConnectedSocket() socket: Socket,@MessageBody() data: {x: number, y: number, room: string}) {
-    console.log(data, data.y, data.x)
+    console.log(data, data.y, data.x, socket.rooms)
     socket.to(data.room).emit('getAttacked', {y:data.y, x:data.x})
   }
   @SubscribeMessage('gotAttacked_True')
-  onGotAttackedTrue(client: Socket, x: number, y: number, room: string) {
+  onGotAttackedTrue(socket: Socket, x: number, y: number, room: string) {
     console.log('attacked') 
-    client.to(room).emit('attacked', { y, x })
+    socket.to(room).emit('attacked', { y, x })
   }
   @SubscribeMessage('gotAttacked_False')
-  onGotAttackedFalse(client: Socket, x: number, y: number, room: string) {
-    console.log('missed')
-    client.to(room).emit('missed', { y, x })
+  onGotAttackedFalse(@ConnectedSocket() socket: Socket,@MessageBody() data: {x: number, y: number, room: string}) {
+    console.log('missed', data, data.room)
+    socket.to(data.room).emit('missed', { y:data.y, x:data.x })
   }
   @SubscribeMessage('changeTurn')
-  changeTurn(client: Socket, socketId: string, beginning: boolean) {
-    if (beginning) {
-      socketId === this.sockets[0].id
-        ? this.server.to(this.sockets[0].id).emit('turn', { turn: this.sockets[0].turn })
-        : this.server.to(this.sockets[1].id).emit('turn', { turn: this.sockets[1].turn })
+  changeTurn(@ConnectedSocket() socket: Socket, @MessageBody() data: {socketId: string, room:string,  beginning: boolean}) {
+    if (data.beginning) {
+      data.socketId === this.sockets[0].id
+        ? socket.to(data.room).emit('turn', { turn: this.sockets[0].turn })
+        : socket.to(data.room).emit('turn', { turn: this.sockets[1].turn })
     } else {
-      this.sockets.forEach(socket => {
-        socket.turn = !socket.turn
-        this.server.to(socket.id).emit('turn', { turn: socket.turn })
+      this.sockets.forEach(sk => {
+        sk.turn = !sk.turn;
+        socket.to(data.room).emit('turn', { turn: sk.turn })
       })
     }
   }

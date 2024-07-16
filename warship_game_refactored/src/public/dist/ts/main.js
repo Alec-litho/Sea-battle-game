@@ -1,6 +1,9 @@
-import { PrepareStage } from './PrepareStage.js';
-import { GameplayStage } from './GameplayStage.js';
-import { GameLogic } from './GameLogic.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const PrepareStage_js_1 = require("./PrepareStage.js");
+const GameplayStage_js_1 = require("./GameplayStage.js");
+const GameLogic_js_1 = require("./GameLogic.js");
+const socket_io_client_1 = require("socket.io-client");
 document.querySelector('.newGame').addEventListener('click', keyGenerator);
 document.querySelector('.join_room').addEventListener('click', joinGame);
 const key = document.querySelector('.key');
@@ -26,7 +29,7 @@ function joinGame() {
         handleConnection('join', roomVal, room);
 }
 function handleConnection(type, roomVal, room) {
-    const socket = io('http://localhost:3000');
+    const socket = (0, socket_io_client_1.io)('http://localhost:3000');
     if (type === 'join') {
         socket.emit('checkIfExists', roomVal);
         socket.on('error', (message) => {
@@ -45,10 +48,10 @@ function handleConnection(type, roomVal, room) {
 }
 function main(socket, room, socketId, turn) {
     console.log(socketId);
-    const game = new GameLogic();
-    window.Game = new PrepareStage(socket, room, game);
+    const game = new GameLogic_js_1.GameLogic();
+    window.Game = new PrepareStage_js_1.PrepareStage(socket, room, game);
     socket.on('playerFinishedPreparing', () => {
         console.log('gameplay stage');
-        window.Game = new GameplayStage(socket, room, game, turn);
+        window.Game = new GameplayStage_js_1.GameplayStage(socket, room, game, turn);
     });
 }

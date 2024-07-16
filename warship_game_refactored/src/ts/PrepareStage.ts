@@ -142,8 +142,8 @@ export class PrepareStage extends Game {
     ships.classList.remove(`ships`,`${oldDir}`);
     ships.classList.add(`ships`,`${this.direction}`);
   }
-
   public finishPrepareStage() {
+    console.log(this)
     if (this.game.existingShips/*this.game.existingShips.length >= 10*/) {
       clearInterval(this.render)
       this.socket.emit('finishedPreparing', { room: this.room })

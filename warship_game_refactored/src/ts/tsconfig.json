@@ -4,7 +4,7 @@
     "module": "ES2015",
     "outDir": "../public",
     "moduleResolution": "Bundler",
-    "target": "ES6",
+    "target": "ES6", 
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -18,5 +18,9 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "noEmitOnError": true
+    
     },
+    "include": [
+      "../ts/*"
+    ]
   }

@@ -50,10 +50,11 @@ function handleConnection(type: string, roomVal: string,  room?: HTMLInputElemen
 }
 
 function main(socket: ReturnType<typeof io>, room: string, socketId: string, turn: boolean) {
-  console.log(socketId)
-  ;(<any>window).Game = new PrepareStage(socket, room, new GameLogic())
+  console.log(socketId);
+  const game = new GameLogic();
+  (<any>window).Game = new PrepareStage(socket, room, game)
   socket.on('playerFinishedPreparing', () => {
     console.log('gameplay stage')
-    ;(<any>window).Game = new GameplayStage(socket, room, new GameLogic(), turn)
+    ;(<any>window).Game = new GameplayStage(socket, room, game, turn)
   })
 }

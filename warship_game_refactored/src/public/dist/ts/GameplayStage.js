@@ -1,5 +1,8 @@
-import { Game } from './Game.js';
-export class GameplayStage extends Game {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GameplayStage = void 0;
+const Game_js_1 = require("./Game.js");
+class GameplayStage extends Game_js_1.Game {
     constructor(socket, room, game, playerTurn) {
         super(socket, room);
         this.board = document.querySelector(".boardPlayerTwo.none");
@@ -67,3 +70,4 @@ export class GameplayStage extends Game {
         });
     }
 }
+exports.GameplayStage = GameplayStage;
