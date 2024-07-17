@@ -82,6 +82,7 @@ button:hover {
 }
 
 .gameContainer {
+    position: relative;
     margin: 0 auto;
     display: none;
     justify-content: center;
@@ -270,4 +271,27 @@ button:hover {
 }
 
 /*--------------------------------------------------*/
-
+.finishModal {
+    display: none;
+}
+.finishModal.show {
+    z-index: 100;
+    display: flex;
+    width: 200px;
+    height: 100px;
+    position: absolute;
+    left: 45%;
+    top: 40%;
+    background-color: white;
+}
+.bg {
+    display: none;
+}
+.bg.show {
+    display: flex;
+    z-index: 99;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.249);
+}

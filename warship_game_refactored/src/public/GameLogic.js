@@ -30,12 +30,12 @@ export class GameLogic {
         if (this.map[y][x] === 2) {
             this.existingShips.forEach((ship) => {
                 ship.allShipCords.map((cord, indx) => {
-                    if (cord.toString() === `${y} + ${x}`)
+                    if (cord.toString() === `${y}${x}`)
                         ship.allShipCords.splice(indx, 1);
                 });
             });
             this.map[y][x] = 1;
-            if (this.checkIfShipExists()) {
+            if (!this.checkIfShipExists()) {
                 const shipId = this.existingShips.filter((ship) => ship.allShipCords.length === 0)[0].id;
                 this.removeShip(shipId);
             }
@@ -138,11 +138,14 @@ export class GameLogic {
             if (ship.id === shipId)
                 shipIndx = indx;
         });
-        this.existingShips = this.existingShips.splice(shipIndx, 1);
+        this.existingShips.splice(shipIndx, 1);
     }
     createShip(y, x, ship) {
         const createdShip = new this.ShipClass(y, x, ship);
         this.existingShips.push(createdShip);
         return createdShip;
+    }
+    isGameOver() {
+        return this.existingShips.length === 0 ? true : false;
     }
 }

@@ -6,11 +6,15 @@ class GameplayStage extends Game_js_1.Game {
     constructor(socket, room, game, playerTurn) {
         super(socket, room);
         this.board = document.querySelector(".boardPlayerTwo.none");
+        this.finishModal = document.querySelector(".finishModal");
+        this.backGround = document.querySelector(".bg");
         this.currObj = this;
         this.game = game;
         this.playerTurn = playerTurn;
         this.board.className = this.playerTurn ? "boardPlayerTwo" : "boardPlayerTwo turn";
         this.board.addEventListener("click", this.attack.bind(this.currObj));
+        this.socket.on("turn", () => this.changeTurn());
+        this.socket.on("finish", () => { this.finishModal.classList.add("show"); this.backGround.classList.add("show"); });
         if (!this.playerTurn) {
             console.log("another player turn");
             this.getAttacked();
@@ -25,7 +29,7 @@ class GameplayStage extends Game_js_1.Game {
             this.socket.on('missed', () => {
                 console.log("missed");
                 el.classList.add('attacked');
-                this.changeTurn();
+                this.socket.emit('changeTurn', { socketId: this.socket.id, room: this.room });
             });
             this.socket.on('attacked', () => {
                 console.log("attacked");
@@ -41,9 +45,15 @@ class GameplayStage extends Game_js_1.Game {
             const result = this.game.attackShip(+y, +x);
             this.socket.off("missed");
             this.socket.off("attacked");
-            console.log(result);
+            console.log(this);
             if (result === true) {
-                this.socket.emit("gotAttacked_True", { y, x, room: this.room });
+                if (this.game.isGameOver()) {
+                    console.log("finish");
+                    this.socket.emit("finishGame", { room: this.room });
+                }
+                else {
+                    this.socket.emit("gotAttacked_True", { y, x, room: this.room });
+                }
             }
             else {
                 this.socket.emit("gotAttacked_False", { y, x, room: this.room });
@@ -51,11 +61,12 @@ class GameplayStage extends Game_js_1.Game {
         });
     }
     changeTurn() {
+        console.log('w');
         this.socket.off('missed');
         this.socket.off('attacked');
         this.socket.off('getAttacked');
         this.clearCurrentAttack(this.cellsPlayerTwo);
-        this.socket.emit('changeTurn', { socketId: this.socket.id, room: this.room });
+        this.playerTurn = !this.playerTurn;
         if (this.playerTurn === false) {
             this.getAttacked();
             this.board.className = "boardPlayerTwo turn";

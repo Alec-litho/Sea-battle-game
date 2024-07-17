@@ -55,9 +55,9 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayInit, On
     socket.to(data.room).emit('getAttacked', {y:data.y, x:data.x})
   }
   @SubscribeMessage('gotAttacked_True')
-  onGotAttackedTrue(socket: Socket, x: number, y: number, room: string) {
-    console.log('attacked') 
-    socket.to(room).emit('attacked', { y, x })
+  onGotAttackedTrue(socket: Socket, data: {x: number, y: number, room: string}) {
+    console.log('attacked', data) 
+    socket.to(data.room).emit('attacked', { y:data.y, x:data.x })
   }
   @SubscribeMessage('gotAttacked_False')
   onGotAttackedFalse(@ConnectedSocket() socket: Socket,@MessageBody() data: {x: number, y: number, room: string}) {
@@ -66,6 +66,7 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayInit, On
   }
   @SubscribeMessage('changeTurn')
   changeTurn(@ConnectedSocket() socket: Socket, @MessageBody() data: {socketId: string, room:string,  beginning: boolean}) {
+    console.log("69", data)
     if (data.beginning) {
       data.socketId === this.sockets[0].id
         ? socket.to(data.room).emit('turn', { turn: this.sockets[0].turn })
@@ -73,11 +74,16 @@ export class GameEventsGateway implements OnGatewayConnection, OnGatewayInit, On
     } else {
       this.sockets.forEach(sk => {
         sk.turn = !sk.turn;
-        socket.to(data.room).emit('turn', { turn: sk.turn })
-      })
+        // socket.to(data.room).emit('turn', { turn: sk.turn });
+      });
+      this.server.in(data.room).emit('turn');
     }
   }
-
+  @SubscribeMessage('finishGame')
+  finish(@ConnectedSocket() socket: Socket, @MessageBody() {room}: {room: string}) {
+    console.log('finish', room)
+    this.server.in(room).emit('finish')
+  }
   afterInit(server: Server) {
     console.log(server)
   }

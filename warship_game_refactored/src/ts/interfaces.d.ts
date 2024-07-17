@@ -27,4 +27,5 @@ interface GameLogicInterface {
   clearShipArea(cells:HTMLElement[]):void
   paintShipArea(cords: string, shipType: ShipType, cells:HTMLElement[]):void
   defineStartAndEndCords(cords: string, shipType: ShipType):{startCord:string[], endCord:string[]}
+  isGameOver():boolean
 }

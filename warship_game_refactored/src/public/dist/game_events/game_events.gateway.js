@@ -56,15 +56,16 @@ let GameEventsGateway = class GameEventsGateway {
         console.log(data, data.y, data.x, socket.rooms);
         socket.to(data.room).emit('getAttacked', { y: data.y, x: data.x });
     }
-    onGotAttackedTrue(socket, x, y, room) {
-        console.log('attacked');
-        socket.to(room).emit('attacked', { y, x });
+    onGotAttackedTrue(socket, data) {
+        console.log('attacked', data);
+        socket.to(data.room).emit('attacked', { y: data.y, x: data.x });
     }
     onGotAttackedFalse(socket, data) {
         console.log('missed', data, data.room);
         socket.to(data.room).emit('missed', { y: data.y, x: data.x });
     }
     changeTurn(socket, data) {
+        console.log("69", data);
         if (data.beginning) {
             data.socketId === this.sockets[0].id
                 ? socket.to(data.room).emit('turn', { turn: this.sockets[0].turn })
@@ -73,9 +74,13 @@ let GameEventsGateway = class GameEventsGateway {
         else {
             this.sockets.forEach(sk => {
                 sk.turn = !sk.turn;
-                socket.to(data.room).emit('turn', { turn: sk.turn });
             });
+            this.server.in(data.room).emit('turn');
         }
+    }
+    finish(socket, { room }) {
+        console.log('finish', room);
+        this.server.in(room).emit('finish');
     }
     afterInit(server) {
         console.log(server);
@@ -127,7 +132,7 @@ __decorate([
 __decorate([
     (0, websockets_1.SubscribeMessage)('gotAttacked_True'),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [socket_io_1.Socket, Number, Number, String]),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
     __metadata("design:returntype", void 0)
 ], GameEventsGateway.prototype, "onGotAttackedTrue", null);
 __decorate([
@@ -146,6 +151,14 @@ __decorate([
     __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
     __metadata("design:returntype", void 0)
 ], GameEventsGateway.prototype, "changeTurn", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('finishGame'),
+    __param(0, (0, websockets_1.ConnectedSocket)()),
+    __param(1, (0, websockets_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", void 0)
+], GameEventsGateway.prototype, "finish", null);
 exports.GameEventsGateway = GameEventsGateway = __decorate([
     (0, websockets_1.WebSocketGateway)({
         cors: {

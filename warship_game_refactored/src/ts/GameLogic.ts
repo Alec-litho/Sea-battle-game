@@ -35,11 +35,11 @@ export class GameLogic implements GameLogicInterface {
     if (this.map[y][x] === 2) {
       this.existingShips.forEach((ship: IShip) => {
         ship.allShipCords.map((cord: number, indx: number) => {
-          if (cord.toString() === `${y} + ${x}`) ship.allShipCords.splice(indx, 1)
+          if (cord.toString() === `${y}${x}`) ship.allShipCords.splice(indx, 1)
         })
       })
       this.map[y][x] = 1
-      if (this.checkIfShipExists()) {
+      if (!this.checkIfShipExists()) {
         const shipId = this.existingShips.filter((ship) => ship.allShipCords.length === 0)[0].id
         this.removeShip(shipId)
       }
@@ -136,11 +136,14 @@ export class GameLogic implements GameLogicInterface {
     this.existingShips.forEach((ship, indx) => {
       if (ship.id === shipId) shipIndx = indx
     })
-    this.existingShips = this.existingShips.splice(shipIndx, 1)
+    this.existingShips.splice(shipIndx, 1)
   }
   public createShip(y: number, x: number, ship: ShipType) {
     const createdShip = new this.ShipClass(y,x, ship)
     this.existingShips.push(createdShip)
     return createdShip
+  }
+  public isGameOver():boolean {
+    return this.existingShips.length === 0? true : false
   }
 }
